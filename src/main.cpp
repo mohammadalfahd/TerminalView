@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <map>
 using namespace std;
 
 
@@ -10,10 +11,21 @@ class candle{
 };
 
 void render(vector<candle> &data){
-    
-    for (int i=0;i<10;i++){
-        for(int j=0;j<10;j++){
-            if(i==9){
+    if (data.empty()){
+        cout<<"No Data Available\n";
+    }
+    else{
+    int y_max=data[0].price;
+
+    for(int i=0;i<data.size();i++){
+        if(y_max<data[i].price){
+            y_max=data[i].price;
+        }
+    }
+
+    for (int i=0;i<=y_max;i++){
+        for(int j=0;j<y_max;j++){
+            if(i==y_max-1){
                 cout<<"=";
             }
             else if (j==0){
@@ -22,8 +34,8 @@ void render(vector<candle> &data){
             
             else {
                 bool value=false;
-                for(int n=data.size()-1;n>=0;n--){
-                    if(i==9-data[n].price && j==data[n].timestamp){
+                for(int n=data.size()-1;n>=0;--n){
+                    if(i==y_max-data[n].price && j==data[n].timestamp){
                         value=true;
                         break;
                     }
@@ -38,18 +50,44 @@ void render(vector<candle> &data){
         }
     cout<<endl;
     }
+};
 }
 
 
 int main(){
 
-    vector<candle> data;
-    data.push_back({1,1});
-    data.push_back({2,2});
-    data.push_back({3,3});
-    data.push_back({4,4});
-    data.push_back({5,5});
+    cout<<"Name of Comapny : ";
+    string name;
+    cin>>name;
+    
+    map<string,vector<candle>> Stock;
+    vector<candle> datapoint;
 
-    render(data);
+    while(true){
+        cout<<endl<<"Enter 1 to add a Datapoint "<<endl<<"Enter anything else to see graph "<<endl;
+        string choice;
+        cout<<"Enter choice : ";
+        cin>>choice;
+
+        if(choice=="1"){
+            int timestamp;
+            int price;
+
+            cout<<endl<<"Enter Year : ";
+            cin>>timestamp;
+            cout<<endl<<"Enter price : ";
+            cin>>price;
+
+            datapoint.push_back({timestamp,price});
+
+        }
+        else {cout<<endl<<"Data Capture Terminated"<<endl; break;};
+    }
+
+    Stock.emplace(name,datapoint);
+
+    cout<<"============="<<name<<"================"<<endl;
+    render(datapoint);
+
     return 0;
 }
