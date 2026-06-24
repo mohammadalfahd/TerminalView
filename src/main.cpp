@@ -47,8 +47,22 @@ void draw_axes(vector<vector<char>> &grid){
 
         grid[bottom][i]='=';
     }
+}
 
+void draw_candle(vector<vector<char>> &grid,vector<candle> &data){
 
+    for(int i=0;i<data.size();i++){
+        
+        int x=i+1;
+
+        int top=min(data[i].open_price,data[i].closing_price);
+        int bottom=max(data[i].open_price,data[i].closing_price);
+
+        for(int j=top;j<=bottom;j++){
+
+            grid[j][x]='█';
+        }
+    }
 }
 
 
