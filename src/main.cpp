@@ -13,9 +13,20 @@ class candle{
     int closing_price;
 };
 
+int get_ylimit(vector<candle> &data){
+    int y_limit=0;
+
+    for(int i=0;i<data.size();i++){
+        if(data[i].high_price>=y_limit){
+            y_limit=data[i].high_price;
+        }
+    }
+
+    return y_limit;
+}
 pair<int,int> grid_limit(vector<candle> &data){
     int y_limit=0;
-    int x_limit=data.size();
+    int x_limit=data.size()+1;
 
     for(int i=0;i<data.size();i++){
         if(data[i].high_price>=y_limit){
@@ -51,20 +62,50 @@ void draw_axes(vector<vector<char>> &grid){
 
 void draw_candle(vector<vector<char>> &grid,vector<candle> &data){
 
+    int inversion_factor=get_ylimit(data);
+    
     for(int i=0;i<data.size();i++){
         
         int x=i+1;
 
-        int top=min(data[i].open_price,data[i].closing_price);
-        int bottom=max(data[i].open_price,data[i].closing_price);
+        int bottom=min(data[i].open_price,data[i].closing_price);
+        int top=max(data[i].open_price,data[i].closing_price);
 
-        for(int j=top;j<=bottom;j++){
+        int wick_top=data[i].high_price;
+        int wick_bottom=data[i].low_price;
 
-            grid[j][x]='█';
+        for(int j=bottom;j<top;j++){
+
+            grid[j][x]='H';
+        }
+
+        for(int j=wick_bottom;j<bottom;j++){
+            grid[(top-bottom)+j+1][x]='|';
         }
     }
 }
+void print_grid(vector<vector<char>> &grid){
 
+    for(int i=0;i<grid.size();i++){
+        
+        for(int j=0;j<grid[i].size();j++){
+            cout<<grid[i][j];
+        }
+
+        cout<<endl;
+    }
+}
+
+void render(vector<candle> &data){
+    auto grid=draw_grid(data);
+
+    draw_axes(grid);
+
+    draw_candle(grid,data);
+
+    print_grid(grid);
+
+}
 
 int main(){
 
