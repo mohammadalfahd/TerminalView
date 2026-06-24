@@ -13,67 +13,42 @@ class candle{
     int closing_price;
 };
 
-void render(vector<candle> &data){
-    if (data.empty()){
-        cout<<"No Data Available\n";
-    }
-    else{
-    int y_max=data[0].high_price;
+pair<int,int> grid_limit(vector<candle> &data){
+    int y_limit=0;
+    int x_limit=data.size();
 
     for(int i=0;i<data.size();i++){
-        if(y_max<data[i].high_price){
-            y_max=data[i].high_price;
+        if(data[i].high_price>=y_limit){
+            y_limit=data[i].high_price;
         }
     }
 
-    for (int i=0;i<=y_max;i++){
-        for(int j=0;j<y_max;j++){
-            if(i==y_max-1){
-                cout<<"=";
-            }
-            else if (j==0){
-                cout<<"|";
-            } 
-            
-            else {
-                bool value=false;
-                bool bullish=false;
-                bool consolidation=false;
-                int target_candle;
-                for(int n=data.size()-1;n>=0;--n){
-                    if(i==y_max-data[n].closing_price && j==data[n].timestamp){
-                        value=true;
-                        target_candle=n;
-                        if(data[n].closing_price>data[n].open_price){
-                            bullish=true;
-                        }
-                        if(data[n].closing_price==data[n].open_price){
-                            consolidation=true;
-                        }
-                        break;
-                    }
-                }
+    return {y_limit,x_limit};
+}
 
-                if(value==true && bullish==true){
-                    for(int i=0;i<(data[target_candle].closing_price-data[target_candle].open_price);i++){
-                        cout<<"█";
-                    }
-                }
-                else if (value==true && bullish ==false){
-                    for(int i=0;i<(data[target_candle].open_price-data[target_candle].closing_price);i++){
-                        cout<<"░";
-                    }
-                }
-                else if(value==true && consolidation==true){
-                    cout<<"=";
-                }
-                else {cout<<" ";};
-            };
+vector<vector<char>> draw_grid(vector<candle> &data){
+    
+    pair<int,int> limits=grid_limit(data);
+    vector<vector<char>> grid(limits.first,vector<char>(limits.second,' '));
+    
+    return grid;
+}
 
-        }
-    cout<<endl;
+void draw_axes(vector<vector<char>> &grid){
+
+    for(int i=0;i<grid.size();i++){
+
+        grid[i][0]='|';
     }
-};
+
+    int bottom=grid.size()-1;
+
+    for(int i=0;i<grid[bottom].size();i++){
+
+        grid[bottom][i]='=';
+    }
+
+
 }
 
 
@@ -117,6 +92,8 @@ int main(){
     }
 
     Stock.emplace(name,datapoint);
+
+    auto grid=draw_grid(datapoint);
 
     cout<<"============="<<name<<"================"<<endl;
     render(datapoint);
