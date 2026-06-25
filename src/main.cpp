@@ -37,15 +37,15 @@ pair<int,int> grid_limit(vector<candle> &data){
     return {y_limit,x_limit};
 }
 
-vector<vector<char>> draw_grid(vector<candle> &data){
+vector<vector<string>> draw_grid(vector<candle> &data){
     
     pair<int,int> limits=grid_limit(data);
-    vector<vector<char>> grid(limits.first,vector<char>(limits.second,' '));
+    vector<vector<string>> grid(limits.first,vector<string>(limits.second," "));
     
     return grid;
 }
 
-void draw_axes(vector<vector<char>> &grid){
+void draw_axes(vector<vector<string>> &grid){
 
     for(int i=0;i<grid.size();i++){
 
@@ -60,31 +60,38 @@ void draw_axes(vector<vector<char>> &grid){
     }
 }
 
-void draw_candle(vector<vector<char>> &grid,vector<candle> &data){
+void draw_candle(vector<vector<string>> &grid,vector<candle> &data){
 
-    int inversion_factor=get_ylimit(data);
-    
+    int invert_factor=get_ylimit(data);
+
     for(int i=0;i<data.size();i++){
-        
+
+        int high_y=invert_factor-data[i].high_price;
+        int low_y=invert_factor-data[i].low_price;
+        int open_y=invert_factor-data[i].open_price;
+        int close_y=invert_factor-data[i].closing_price;
+
         int x=i+1;
 
-        int bottom=min(data[i].open_price,data[i].closing_price);
-        int top=max(data[i].open_price,data[i].closing_price);
+        int body_top=max(open_y,close_y);
+        int body_bottom=min(open_y,close_y);
+        
+        
 
-        int wick_top=data[i].high_price;
-        int wick_bottom=data[i].low_price;
-
-        for(int j=bottom;j<top;j++){
-
-            grid[j][x]='H';
+        
+        
+        for(int j=low_y;j>=body_bottom;j--){
+            grid[j][x]="|";
         }
-
-        for(int j=wick_bottom;j<bottom;j++){
-            grid[(top-bottom)+j+1][x]='|';
+        for(int j=body_top;j>=high_y;j--){
+            grid[j][x]="|";
+        }
+        for(int j=body_bottom;j<body_top+1;j++){
+            grid[j][x]="█";
         }
     }
 }
-void print_grid(vector<vector<char>> &grid){
+void print_grid(vector<vector<string>> &grid){
 
     for(int i=0;i<grid.size();i++){
         
