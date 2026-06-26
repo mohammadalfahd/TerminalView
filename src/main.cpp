@@ -13,63 +13,83 @@ class candle{
     int closing_price;
 };
 
-int get_ylimit(vector<candle> &data){
-    int y_limit=0;
-
-    for(int i=0;i<data.size();i++){
-        if(data[i].high_price>=y_limit){
-            y_limit=data[i].high_price;
-        }
-    }
-
-    return y_limit;
-}
-pair<int,int> grid_limit(vector<candle> &data){
-    int y_limit=0;
-    int x_limit=data.size()+1;
-
-    for(int i=0;i<data.size();i++){
-        if(data[i].high_price>=y_limit){
-            y_limit=data[i].high_price;
-        }
-    }
-
-    return {y_limit,x_limit};
-}
+const int HEIGHT=20;
+const int WIDTH=20;
 
 vector<vector<string>> draw_grid(vector<candle> &data){
-    
-    pair<int,int> limits=grid_limit(data);
-    vector<vector<string>> grid(limits.first,vector<string>(limits.second," "));
+
+    vector<vector<string>> grid(HEIGHT,vector<string>(WIDTH," "));
     
     return grid;
 }
 
 void draw_axes(vector<vector<string>> &grid){
 
-    for(int i=0;i<grid.size();i++){
+    for(int i=0;i<HEIGHT;i++){
 
         grid[i][0]='|';
     }
 
-    int bottom=grid.size()-1;
+    int bottom=HEIGHT-1;
 
-    for(int i=0;i<grid[bottom].size();i++){
+    for(int i=0;i<WIDTH;i++){
 
         grid[bottom][i]='=';
     }
+
+    grid[bottom][0]="+";
+}
+int get_highest_price(vector<candle> &data){
+    
+    int highest_price=0;
+
+    for(int i=0;i<data.size();i++){
+        if(data[i].high_price>highest_price){
+            highest_price=data[i].high_price;
+        }
+    }
+
+    return highest_price;
+}
+
+int get_lowest_price(vector<candle> &data){
+    
+    int lowest_price=0;
+
+    for(int i=0;i<data.size();i++){
+        if(data[i].low_price<lowest_price){
+            lowest_price=data[i].low_price;
+        }
+    }
+
+    return lowest_price;
+}
+
+int scale(vector<candle> &data,int price,int highest_price,int lowest_price){
+
+    int price_gap=highest_price-lowest_price;
+
+    if(price_gap==0){
+        return HEIGHT/2;
+    }
+    else{
+    int scaled_price=(price-lowest_price)*(HEIGHT-1)/price_gap;
+
+    return HEIGHT - 1 - scaled_price;
+    } 
 }
 
 void draw_candle(vector<vector<string>> &grid,vector<candle> &data){
 
-    int invert_factor=get_ylimit(data);
+    int highest_price=get_highest_price(data);
+    int lowest_price=get_lowest_price(data);
 
     for(int i=0;i<data.size();i++){
 
-        int high_y=invert_factor-data[i].high_price;
-        int low_y=invert_factor-data[i].low_price;
-        int open_y=invert_factor-data[i].open_price;
-        int close_y=invert_factor-data[i].closing_price;
+        int high_y=scale(data,data[i].high_price,highest_price,lowest_price);
+        int low_y=scale(data,data[i].low_price,highest_price,lowest_price);
+        int open_y=scale(data,data[i].open_price,highest_price,lowest_price);
+        int close_y=scale(data,data[i].closing_price,highest_price,lowest_price);
 
         int x=i+1;
 
