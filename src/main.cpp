@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <fstream>
+#include <sstream>
 using namespace std;
 
 
@@ -13,8 +15,37 @@ class candle{
     int closing_price;
 };
 
+vector<candle> load_csv(string file_address){
+    
+    vector<candle> vector_data;
+    vector<int> store_data;
+    string data;
+    ifstream file(file_address);
+    file>>data;
+
+    string line;
+    getline(file,line);
+
+    while(getline(file,line)){
+        stringstream file_line(line);
+        string parameter;
+
+        store_data.clear();
+
+        while(getline(file_line,parameter,',')){
+
+            store_data.push_back(stoi(parameter));
+        };
+        
+        vector_data.push_back({store_data[0],store_data[1],store_data[2],store_data[3],store_data[4]});
+    }
+
+    return vector_data;
+}
+
+
 const int HEIGHT=20;
-const int WIDTH=20;
+const int WIDTH=22;
 
 vector<vector<string>> draw_grid(vector<candle> &data){
 
@@ -144,7 +175,8 @@ int main(){
     vector<candle> datapoint;
 
     while(true){
-        cout<<endl<<"Enter 1 to add a Datapoint "<<endl<<"Enter anything else to see graph "<<endl;
+        cout<<endl<<"1 -> Manual Data Entry"<<endl<<
+            "2 -> CSV Import "<<endl<<"Enter anything else to see graph "<<endl;
         string choice;
         cout<<"Enter choice : ";
         cin>>choice;
@@ -169,6 +201,18 @@ int main(){
 
             datapoint.push_back({timestamp,open_price,high_price,low_price,closing_price});
 
+        }
+        else if(choice=="2"){
+
+            string file_address;
+            string file_name;
+
+            cout<<"ENTER FILE NAME : ";
+            cin>>file_name;
+
+            file_address="../CSV_files/"+file_name;
+
+            datapoint=load_csv(file_address);
         }
         else {cout<<endl<<"Data Capture Terminated"<<endl; break;};
     }
