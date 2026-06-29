@@ -14,10 +14,36 @@ class candle{
     int low_price;
     int closing_price;
 };
-struct GridConfig{
-    int width;
-    int height;
-    int spacing;
+
+int get_y_lable_width(vector<candle> &data);
+
+class GridConfig{
+    public: 
+    int y_label_width;
+    int x_label_height=3;
+    int spacing=2;
+    int candle_count;
+    int chart_height;
+    int chart_width;
+
+
+    int total_width;
+    int total_height;
+
+
+
+    GridConfig(){}
+    
+    GridConfig(vector<candle> &data){
+        y_label_width=get_y_lable_width(data);
+        chart_height=20;
+        candle_count=data.size();
+        chart_width=spacing*candle_count;
+        total_width=chart_width+y_label_width+3;
+        total_height=chart_height+x_label_height+3;
+
+    }
+    
 };
 
 vector<candle> load_csv(string file_address){
@@ -49,23 +75,23 @@ vector<candle> load_csv(string file_address){
 }
 
 
-vector<vector<string>> draw_grid(vector<candle> &data,GridConfig &config){
+vector<vector<string>> draw_grid(GridConfig &config){
 
-    vector<vector<string>> grid(config.height,vector<string>(config.width," "));
+    vector<vector<string>> grid(config.total_height,vector<string>(config.total_width," "));
     
     return grid;
 }
 
 void draw_axes(vector<vector<string>> &grid,GridConfig &config){
 
-    for(int i=0;i<config.height;i++){
+    for(int i=0;i<config.total_height;i++){
 
         grid[i][0]='|';
     }
 
-    int bottom=config.height-1;
+    int bottom=config.total_height-1;
 
-    for(int i=0;i<config.width;i++){
+    for(int i=0;i<config.total_width;i++){
 
         grid[bottom][i]='=';
     }
@@ -85,6 +111,7 @@ int get_highest_price(vector<candle> &data){
     return highest_price;
 }
 
+
 int get_lowest_price(vector<candle> &data){
     
     int lowest_price=0;
@@ -98,17 +125,27 @@ int get_lowest_price(vector<candle> &data){
     return lowest_price;
 }
 
+int get_y_lable_width(vector<candle> &data){
+    string max_width_string=to_string(get_highest_price(data));
+    int y_label_width=size(max_width_string);
+
+    return y_label_width;
+    
+}
+
+
+
 int scale(vector<candle> &data,GridConfig &config,int price,int highest_price,int lowest_price){
 
     int price_gap=highest_price-lowest_price;
 
     if(price_gap==0){
-        return config.height/2;
+        return config.total_height/2;
     }
     else{
-    int scaled_price=(price-lowest_price)*(config.height-1)/price_gap;
+    int scaled_price=(price-lowest_price)*(config.total_height-1)/price_gap;
 
-    return config.height - 1 - scaled_price;
+    return config.total_height - 1 - scaled_price;
     } 
 }
 
@@ -158,7 +195,7 @@ void print_grid(vector<vector<string>> &grid){
 }
 
 void render(vector<candle> &data,GridConfig &config){
-    auto grid=draw_grid(data,config);
+    auto grid=draw_grid(config);
 
     draw_axes(grid,config);
 
@@ -219,16 +256,13 @@ int main(){
         }
         else {cout<<endl<<"Data Capture Terminated"<<endl; break;};
     }
-    GridConfig CONFIG;
-    CONFIG.height=20;
-    CONFIG.spacing=2;
-    CONFIG.width=datapoint.size()*CONFIG.spacing+2;
+    GridConfig CONFIG(datapoint);
 
     Stock.emplace(name,datapoint);
 
-    auto grid=draw_grid(datapoint,CONFIG);
+    auto grid=draw_grid(CONFIG);
 
-    cout<<"============="<<name<<"================"<<endl;
+    cout<<"============= "<<name<<" ================"<<endl;
     render(datapoint,CONFIG);
 
     return 0;
