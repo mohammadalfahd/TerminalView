@@ -16,6 +16,9 @@ class candle{
 };
 
 int get_y_lable_width(vector<candle> &data);
+int get_highest_price(vector<candle> &data);
+int get_lowest_price(vector<candle> &data);
+
 
 class GridConfig{
     public: 
@@ -40,7 +43,7 @@ class GridConfig{
         candle_count=data.size();
         chart_width=spacing*candle_count;
         total_width=chart_width+y_label_width+3;
-        total_height=chart_height+x_label_height+3;
+        total_height=chart_height+x_label_height+1;
 
     }
     
@@ -87,6 +90,11 @@ void draw_axes(vector<vector<string>> &grid,GridConfig &config){
     for(int i=0;i<config.total_height;i++){
 
         grid[i][0]='|';
+        grid[i][config.total_width-1]='|'; 
+    }
+    for(int i=0;i<config.chart_height;i++){
+
+        grid[i][config.chart_width+1]='|';    
     }
 
     int bottom=config.total_height-1;
@@ -94,10 +102,47 @@ void draw_axes(vector<vector<string>> &grid,GridConfig &config){
     for(int i=0;i<config.total_width;i++){
 
         grid[bottom][i]='=';
+        grid[config.chart_height+1][i]="=";
+        grid[0][i]="=";
     }
 
     grid[bottom][0]="+";
 }
+
+void y_draw_labels(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config){
+    int highest = get_highest_price(data);
+    int lowest  = get_lowest_price(data);
+
+    const int label_count = 5;
+
+    for (int i = 0; i < label_count; i++)
+    {
+        int row = i * (config.chart_height - 1) / (label_count - 1);
+
+        int price =
+            highest -
+            row * (highest - lowest) / (config.chart_height - 1);
+
+        grid[row+1][config.chart_width + 2] = to_string(price);
+    }
+}
+
+void x_draw_label(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config){
+
+    int label_count = 5;
+
+    for (int i = 0; i < label_count; i++)
+    {
+        int candle_index =
+            i * (data.size() - 1) / (label_count - 1);
+
+        int x = 1 + candle_index * config.spacing;
+
+        grid[config.total_height-2][x] =to_string(data[candle_index].timestamp);
+            
+    }
+}
+
 int get_highest_price(vector<candle> &data){
     
     int highest_price=0;
@@ -171,13 +216,13 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
 
         
         
-        for(int j=low_y;j>=body_bottom;j--){
+        for(int j=low_y+1;j>=body_bottom+1;j--){
             grid[j][x]="|";
         }
-        for(int j=body_top;j>=high_y;j--){
+        for(int j=body_top+1;j>=high_y+1;j--){
             grid[j][x]="|";
         }
-        for(int j=body_bottom;j<body_top+1;j++){
+        for(int j=body_bottom+1;j<=body_top+1;j++){
             grid[j][x]="█";
         }
     }
@@ -198,6 +243,8 @@ void render(vector<candle> &data,GridConfig &config){
     auto grid=draw_grid(config);
 
     draw_axes(grid,config);
+    y_draw_labels(grid,data,config);
+    x_draw_label(grid,data,config);
 
     draw_candle(grid,data,config);
 
