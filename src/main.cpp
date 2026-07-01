@@ -5,7 +5,6 @@
 #include <sstream>
 using namespace std;
 
-
 class candle{
     public:
     int timestamp;
@@ -89,24 +88,24 @@ void draw_axes(vector<vector<string>> &grid,GridConfig &config){
 
     for(int i=0;i<config.total_height;i++){
 
-        grid[i][0]='|';
-        grid[i][config.total_width-1]='|'; 
+        grid[i][0]="\033[36m|\033[0m";
+        grid[i][config.total_width-1]="\033[36m|\033[0m"; 
     }
     for(int i=0;i<config.chart_height;i++){
 
-        grid[i][config.chart_width+1]='|';    
+        grid[i][config.chart_width+1]="\033[36m|\033[0m";    
     }
 
     int bottom=config.total_height-1;
 
     for(int i=0;i<config.total_width;i++){
 
-        grid[bottom][i]='=';
-        grid[config.chart_height+1][i]="=";
-        grid[0][i]="=";
+        grid[bottom][i]="\033[36m=\033[0m";
+        grid[config.chart_height+1][i]="\033[36m=\033[0m";
+        grid[0][i]="\033[36m=\033[0m";
     }
 
-    grid[bottom][0]="+";
+    grid[bottom][0]="\033[36m+\033[0m";
 }
 
 void y_draw_labels(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config){
@@ -223,7 +222,10 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
             grid[j][x]="|";
         }
         for(int j=body_bottom+1;j<=body_top+1;j++){
-            grid[j][x]="█";
+            if(open_y>close_y){
+                grid[j][x]="\033[31m█\033[0m";
+            }
+            else {grid[j][x]="\033[32m█\033[0m";}
         }
     }
 }
