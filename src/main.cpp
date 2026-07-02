@@ -14,18 +14,23 @@ class candle{
     int closing_price;
 };
 
+struct Viewport{
+    int first_visible_candle=0;
+    int candle_count=20;
+};
+
 int get_y_lable_width(vector<candle> &data);
-int get_highest_price(vector<candle> &data);
-int get_lowest_price(vector<candle> &data);
+int get_highest_price(vector<candle> &data,Viewport &Viewport);
+int get_lowest_price(vector<candle> &data,Viewport &Viewport);
 
 
 class GridConfig{
     public: 
-    int y_label_width;
+    int y_label_width=1;
     int x_label_height=3;
     int spacing=2;
     int candle_count;
-    int chart_height;
+    int chart_height=20;
     int chart_width;
 
 
@@ -36,10 +41,9 @@ class GridConfig{
 
     GridConfig(){}
     
-    GridConfig(vector<candle> &data){
-        y_label_width=get_y_lable_width(data);
-        chart_height=20;
-        candle_count=data.size();
+    GridConfig(Viewport &visible_region){
+
+        candle_count=visible_region.candle_count;
         chart_width=spacing*candle_count;
         total_width=chart_width+y_label_width+3;
         total_height=chart_height+x_label_height+1;
@@ -108,9 +112,9 @@ void draw_axes(vector<vector<string>> &grid,GridConfig &config){
     grid[bottom][0]="\033[36m+\033[0m";
 }
 
-void y_draw_labels(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config){
-    int highest = get_highest_price(data);
-    int lowest  = get_lowest_price(data);
+void y_draw_labels(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport){
+    int highest = get_highest_price(data,Viewport);
+    int lowest  = get_lowest_price(data,Viewport);
 
     const int label_count = 5;
 
@@ -126,27 +130,28 @@ void y_draw_labels(vector<vector<string>> &grid,vector<candle> &data,GridConfig 
     }
 }
 
-void x_draw_label(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config){
+void x_draw_label(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport){
 
     int label_count = 5;
 
     for (int i = 0; i < label_count; i++)
-    {
-        int candle_index =
-            i * (data.size() - 1) / (label_count - 1);
+    {   
+        int screen_index=i*(Viewport.candle_count-1)/(label_count-1);
+        int candle_index =Viewport.first_visible_candle+screen_index;
 
-        int x = 1 + candle_index * config.spacing;
+        int x = 1 + screen_index * config.spacing;
 
         grid[config.total_height-2][x] =to_string(data[candle_index].timestamp);
             
     }
 }
 
-int get_highest_price(vector<candle> &data){
+int get_highest_price(vector<candle> &data,Viewport &Viewport){
     
     int highest_price=0;
+    int end = min((Viewport.first_visible_candle + Viewport.candle_count),int(data.size()));
 
-    for(int i=0;i<data.size();i++){
+    for(int i=Viewport.first_visible_candle;i<end;i++){
         if(data[i].high_price>highest_price){
             highest_price=data[i].high_price;
         }
@@ -156,11 +161,12 @@ int get_highest_price(vector<candle> &data){
 }
 
 
-int get_lowest_price(vector<candle> &data){
+int get_lowest_price(vector<candle> &data,Viewport &Viewport){
     
-    int lowest_price=0;
+    int lowest_price = data[0].low_price;
+    int end = min((Viewport.first_visible_candle + Viewport.candle_count),int(data.size()));
 
-    for(int i=0;i<data.size();i++){
+    for(int i=Viewport.first_visible_candle;i<end;i++){
         if(data[i].low_price<lowest_price){
             lowest_price=data[i].low_price;
         }
@@ -169,44 +175,46 @@ int get_lowest_price(vector<candle> &data){
     return lowest_price;
 }
 
-int get_y_lable_width(vector<candle> &data){
-    string max_width_string=to_string(get_highest_price(data));
-    int y_label_width=size(max_width_string);
+//int get_y_lable_width(vector<candle> &data){
+//    string max_width_string=to_string(get_highest_price(data));
+//    int y_label_width=size(max_width_string);
+//
+//    return y_label_width;
+//    
+//}
 
-    return y_label_width;
-    
-}
 
 
-
-int scale(vector<candle> &data,GridConfig &config,int price,int highest_price,int lowest_price){
+int scale(GridConfig &config,int price,int highest_price,int lowest_price){
 
     int price_gap=highest_price-lowest_price;
 
     if(price_gap==0){
-        return config.total_height/2;
+        return config.chart_height/2;
     }
     else{
-    int scaled_price=(price-lowest_price)*(config.total_height-1)/price_gap;
+    int scaled_price=(price-lowest_price)*(config.chart_height-1)/price_gap;
 
-    return config.total_height - 1 - scaled_price;
+    return config.chart_height - 1 - scaled_price;
     } 
 }
 
-void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config){
+void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport){
 
     const int candle_spacing=config.spacing;
-    int highest_price=get_highest_price(data);
-    int lowest_price=get_lowest_price(data);
+    int highest_price=get_highest_price(data,Viewport);
+    int lowest_price=get_lowest_price(data,Viewport);
 
-    for(int i=0;i<data.size();i++){
+    cout << "Highest = " << highest_price << endl;
+    cout << "Lowest  = " << lowest_price << endl;
+    for(int i=0;i<Viewport.candle_count-1;i++){
+        
+        int high_y=scale(config,data[i].high_price,highest_price,lowest_price);
+        int low_y=scale(config,data[i].low_price,highest_price,lowest_price);
+        int open_y=scale(config,data[i].open_price,highest_price,lowest_price);
+        int close_y=scale(config,data[i].closing_price,highest_price,lowest_price);
 
-        int high_y=scale(data,config,data[i].high_price,highest_price,lowest_price);
-        int low_y=scale(data,config,data[i].low_price,highest_price,lowest_price);
-        int open_y=scale(data,config,data[i].open_price,highest_price,lowest_price);
-        int close_y=scale(data,config,data[i].closing_price,highest_price,lowest_price);
-
-        int x=1+i*candle_spacing;
+        int x = 1 + i * config.spacing;
 
         int body_top=max(open_y,close_y);
         int body_bottom=min(open_y,close_y);
@@ -215,13 +223,16 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
 
         
         
-        for(int j=low_y+1;j>=body_bottom+1;j--){
+        for(int j=low_y;j>=body_bottom;j--){
+
             grid[j][x]="|";
         }
-        for(int j=body_top+1;j>=high_y+1;j--){
+        for(int j=body_top+1;j>=high_y;j--){
+
             grid[j][x]="|";
         }
-        for(int j=body_bottom+1;j<=body_top+1;j++){
+        for(int j=body_bottom;j<=body_top;j++){
+
             if(open_y>close_y){
                 grid[j][x]="\033[31m█\033[0m";
             }
@@ -241,14 +252,14 @@ void print_grid(vector<vector<string>> &grid){
     }
 }
 
-void render(vector<candle> &data,GridConfig &config){
+void render(vector<candle> &data,GridConfig &config,Viewport &Viewport){
     auto grid=draw_grid(config);
 
     draw_axes(grid,config);
-    y_draw_labels(grid,data,config);
-    x_draw_label(grid,data,config);
+    y_draw_labels(grid,data,config,Viewport);
+    x_draw_label(grid,data,config,Viewport);
 
-    draw_candle(grid,data,config);
+    draw_candle(grid,data,config,Viewport);
 
     print_grid(grid);
 
@@ -262,6 +273,7 @@ int main(){
     
     map<string,vector<candle>> Stock;
     vector<candle> datapoint;
+    Viewport visible_region;
 
     while(true){
         cout<<endl<<"1 -> Manual Data Entry"<<endl<<
@@ -305,14 +317,14 @@ int main(){
         }
         else {cout<<endl<<"Data Capture Terminated"<<endl; break;};
     }
-    GridConfig CONFIG(datapoint);
+    GridConfig CONFIG(visible_region);
 
     Stock.emplace(name,datapoint);
 
     auto grid=draw_grid(CONFIG);
 
     cout<<"============= "<<name<<" ================"<<endl;
-    render(datapoint,CONFIG);
+    render(datapoint,CONFIG,visible_region);
 
     return 0;
 }
