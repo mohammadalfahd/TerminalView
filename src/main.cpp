@@ -1,8 +1,10 @@
+#include "input.h"
 #include <iostream>
 #include <vector>
 #include <map>
 #include <fstream>
 #include <sstream>
+
 using namespace std;
 
 class candle{
@@ -175,15 +177,6 @@ int get_lowest_price(vector<candle> &data,Viewport &Viewport){
     return lowest_price;
 }
 
-//int get_y_lable_width(vector<candle> &data){
-//    string max_width_string=to_string(get_highest_price(data));
-//    int y_label_width=size(max_width_string);
-//
-//    return y_label_width;
-//    
-//}
-
-
 
 int scale(GridConfig &config,int price,int highest_price,int lowest_price){
 
@@ -207,20 +200,19 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
 
     cout << "Highest = " << highest_price << endl;
     cout << "Lowest  = " << lowest_price << endl;
-    for(int i=0;i<Viewport.candle_count-1;i++){
+    for (int screen_index = 0;screen_index < Viewport.candle_count;screen_index++)
+{
+        int data_index =Viewport.first_visible_candle + screen_index;
         
-        int high_y=scale(config,data[i].high_price,highest_price,lowest_price);
-        int low_y=scale(config,data[i].low_price,highest_price,lowest_price);
-        int open_y=scale(config,data[i].open_price,highest_price,lowest_price);
-        int close_y=scale(config,data[i].closing_price,highest_price,lowest_price);
+        int high_y=scale(config,data[data_index].high_price,highest_price,lowest_price);
+        int low_y=scale(config,data[data_index].low_price,highest_price,lowest_price);
+        int open_y=scale(config,data[data_index].open_price,highest_price,lowest_price);
+        int close_y=scale(config,data[data_index].closing_price,highest_price,lowest_price);
 
-        int x = 1 + i * config.spacing;
+        int x = 1 + screen_index * config.spacing;
 
         int body_top=max(open_y,close_y);
         int body_bottom=min(open_y,close_y);
-        
-        
-
         
         
         for(int j=low_y;j>=body_bottom;j--){
@@ -234,9 +226,9 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
         for(int j=body_bottom;j<=body_top;j++){
 
             if(open_y>close_y){
-                grid[j][x]="\033[31m█\033[0m";
+                grid[j][x]="\033[32m█\033[0m";
             }
-            else {grid[j][x]="\033[32m█\033[0m";}
+            else {grid[j][x]="\033[31m█\033[0m";}
         }
     }
 }
@@ -263,6 +255,22 @@ void render(vector<candle> &data,GridConfig &config,Viewport &Viewport){
 
     print_grid(grid);
 
+}
+
+void pan(Viewport &Viewport,vector<candle> &data,int direction){
+    int last_start = max(0, (int(data.size()) - Viewport.candle_count));
+
+    if(direction==-1){
+        if(Viewport.first_visible_candle!=0){
+            Viewport.first_visible_candle--;
+        }
+    }
+    else if (direction==1){
+        if (Viewport.first_visible_candle + Viewport.candle_count < data.size())
+        {
+            Viewport.first_visible_candle++;
+        }
+    }
 }
 
 int main(){
@@ -323,8 +331,28 @@ int main(){
 
     auto grid=draw_grid(CONFIG);
 
-    cout<<"============= "<<name<<" ================"<<endl;
-    render(datapoint,CONFIG,visible_region);
+    enable_raw_mode();
+
+    while(true){
+
+            cout << "\033[2J\033[H";
+            cout<<"============= "<<name<<" ================"<<endl;
+            render(datapoint,CONFIG,visible_region);
+
+            char key=get_key();
+
+            if(key=='a'){
+                pan(visible_region,datapoint,-1);
+            }
+            if(key=='d'){
+                pan(visible_region,datapoint,1);
+            }
+            if(key=='q'){
+                break;
+            }
+
+    }
+    disable_raw_mode();
 
     return 0;
 }
