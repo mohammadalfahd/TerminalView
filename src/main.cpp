@@ -198,11 +198,12 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
     int highest_price=get_highest_price(data,Viewport);
     int lowest_price=get_lowest_price(data,Viewport);
 
-    cout << "Highest = " << highest_price << endl;
-    cout << "Lowest  = " << lowest_price << endl;
-    for (int screen_index = 0;screen_index < Viewport.candle_count;screen_index++)
-{
-        int data_index =Viewport.first_visible_candle + screen_index;
+    int end = min(Viewport.first_visible_candle + Viewport.candle_count,(int)data.size());
+
+    int visible = end - Viewport.first_visible_candle;
+
+    for(int screen_index = 0; screen_index < visible; screen_index++){
+    int data_index = Viewport.first_visible_candle + screen_index;
         
         int high_y=scale(config,data[data_index].high_price,highest_price,lowest_price);
         int low_y=scale(config,data[data_index].low_price,highest_price,lowest_price);
@@ -232,6 +233,58 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
         }
     }
 }
+
+void draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,int period = 5){
+    int highest_price = get_highest_price(data, Viewport);
+    int lowest_price = get_lowest_price(data, Viewport);
+
+    bool first_point = true;
+
+    int prev_x;
+    int prev_y;
+
+    int end = min(Viewport.first_visible_candle + Viewport.candle_count,(int)data.size());
+    int visible = end - Viewport.first_visible_candle;
+    for (int screen_index = 0; screen_index < visible; screen_index++)
+    {
+        int data_index = screen_index+Viewport.first_visible_candle;
+
+        if (data_index < period - 1)
+        {
+            continue;
+        }
+
+        double sum = 0;
+
+        for (int j = data_index - period + 1; j <= data_index; j++)
+        {
+            sum += data[j].closing_price;
+        }
+
+        double sma = sum / period;
+
+        int y = scale(config, sma, highest_price, lowest_price);
+        int x = 1 + screen_index * config.spacing;
+        if (y < 0 || y >= config.chart_height)
+            continue;
+        if (first_point)
+        {   
+            grid[y][x] = "\033[95m*\033[0m";
+
+            prev_x = x;
+            prev_y = y;
+            first_point = false;
+        }
+        else
+        {
+            grid[y][x] = "\033[95m*\033[0m";
+
+            prev_x = x;
+            prev_y = y;
+        }
+    }
+}
+
 void print_grid(vector<vector<string>> &grid){
 
     for(int i=0;i<grid.size();i++){
@@ -252,6 +305,7 @@ void render(vector<candle> &data,GridConfig &config,Viewport &Viewport){
     x_draw_label(grid,data,config,Viewport);
 
     draw_candle(grid,data,config,Viewport);
+    draw_moving_average(grid,data,config,Viewport,20);
 
     print_grid(grid);
 
@@ -335,7 +389,8 @@ int main(){
 
     while(true){
 
-            cout << "\033[2J\033[H";
+            
+            system("clear");
             cout<<"============= "<<name<<" ================"<<endl;
             render(datapoint,CONFIG,visible_region);
 
@@ -350,7 +405,7 @@ int main(){
             if(key=='q'){
                 break;
             }
-
+            
     }
     disable_raw_mode();
 
