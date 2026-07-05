@@ -9,11 +9,13 @@ using namespace std;
 
 class candle{
     public:
-    int timestamp;
-    int open_price;
-    int high_price;
-    int low_price;
-    int closing_price;
+    string timestamp;
+    double open_price;
+    double high_price;
+    double low_price;
+    double closing_price;
+    double adj_close;
+    double volume;
 };
 
 struct Viewport{
@@ -54,29 +56,45 @@ class GridConfig{
     
 };
 
-vector<candle> load_csv(string file_address){
-    
+vector<candle> load_csv(string file_address)
+{
     vector<candle> vector_data;
-    vector<int> store_data;
-    string data;
+
     ifstream file(file_address);
-    file>>data;
 
     string line;
-    getline(file,line);
+    getline(file, line); 
 
-    while(getline(file,line)){
+    while (getline(file, line))
+    {
         stringstream file_line(line);
+
+        string timestamp;
         string parameter;
 
-        store_data.clear();
+        double open, high, low, close,adjclose, volume;
 
-        while(getline(file_line,parameter,',')){
+        getline(file_line, timestamp, ',');
 
-            store_data.push_back(stoi(parameter));
-        };
+        getline(file_line, parameter, ',');
+        open = stod(parameter);
+
+        getline(file_line, parameter, ',');
+        high = stod(parameter);
+
+        getline(file_line, parameter, ',');
+        low = stod(parameter);
+
+        getline(file_line, parameter, ',');
+        close = stod(parameter);
+
+        getline(file_line, parameter, ',');
+        adjclose = stod(parameter);
         
-        vector_data.push_back({store_data[0],store_data[1],store_data[2],store_data[3],store_data[4]});
+        getline(file_line, parameter, ',');
+        volume = stod(parameter);
+
+        vector_data.push_back({timestamp,open,high,low,close,adjclose,volume});
     }
 
     return vector_data;
@@ -143,7 +161,7 @@ void x_draw_label(vector<vector<string>> &grid,vector<candle> &data,GridConfig &
 
         int x = 1 + screen_index * config.spacing;
 
-        grid[config.total_height-2][x] =to_string(data[candle_index].timestamp);
+        grid[config.total_height-2][x] =data[candle_index].timestamp;
             
     }
 }
@@ -345,11 +363,13 @@ int main(){
         cin>>choice;
 
         if(choice=="1"){
-            int timestamp;
-            int open_price;
-            int high_price;
-            int low_price;
-            int closing_price;
+            string timestamp;
+            double open_price;
+            double high_price;
+            double low_price;
+            double closing_price;
+            double Adj_close;
+            double volume;
 
             cout<<endl<<"Enter Year : ";
             cin>>timestamp;
@@ -361,8 +381,12 @@ int main(){
             cin>>low_price;
             cout<<endl<<"Enter Closing price : ";
             cin>>closing_price;
+            cout<<endl<<"Enter Adjacent Close : ";
+            cin>>Adj_close;
+            cout<<endl<<"Enter Volume : ";
+            cin>>volume;
 
-            datapoint.push_back({timestamp,open_price,high_price,low_price,closing_price});
+            datapoint.push_back({timestamp,open_price,high_price,low_price,closing_price,Adj_close,volume});
 
         }
         else if(choice=="2"){
