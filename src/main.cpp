@@ -21,6 +21,8 @@ class candle{
 struct Viewport{
     int first_visible_candle=0;
     int candle_count=20;
+
+    int selected_candle=19;
 };
 
 int get_y_lable_width(vector<candle> &data);
@@ -228,6 +230,8 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
         int open_y=scale(config,data[data_index].open_price,highest_price,lowest_price);
         int close_y=scale(config,data[data_index].closing_price,highest_price,lowest_price);
 
+        bool selected=(screen_index==Viewport.selected_candle);
+
         int x = 1 + screen_index * config.spacing;
 
         int body_top=max(open_y,close_y);
@@ -248,6 +252,9 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
                 grid[j][x]="\033[32m█\033[0m";
             }
             else {grid[j][x]="\033[31m█\033[0m";}
+            if(selected){
+                grid[j][x]="\033[33m█\033[0m";
+            }
         }
     }
 }
@@ -257,6 +264,7 @@ void draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridC
     int lowest_price = get_lowest_price(data, Viewport);
 
     bool first_point = true;
+    
 
     int prev_x;
     int prev_y;
@@ -315,6 +323,19 @@ void print_grid(vector<vector<string>> &grid){
     }
 }
 
+void status_bar(Viewport &Viewport,vector<candle> &data){
+    int data_index=Viewport.first_visible_candle+Viewport.selected_candle;
+
+    cout<<"\033[36m*-------------------------------------------------------------*"<<endl<<endl;
+    cout<<"📅 Date : "<<data[data_index].timestamp<<endl;
+    cout<<"\033[32m🟢 O : "<<data[data_index].open_price<<"   🔺 H : "<<data[data_index].high_price<<endl;
+    cout<<"\033[91m🔻 L : "<<data[data_index].low_price<<"    🔴 C : "<<data[data_index].closing_price<<endl<<endl;
+    cout<<"\033[38;5;202m📦 Volume : "<<data[data_index].volume<<endl;
+    cout<<"\033[35m📈 SMA5 : COMING SOON"<<endl<<endl;
+    cout<<"\033[36m*-------------------------------------------------------------*\033[0m"<<endl;
+
+}
+
 void render(vector<candle> &data,GridConfig &config,Viewport &Viewport){
     auto grid=draw_grid(config);
 
@@ -326,6 +347,8 @@ void render(vector<candle> &data,GridConfig &config,Viewport &Viewport){
     draw_moving_average(grid,data,config,Viewport,20);
 
     print_grid(grid);
+
+    status_bar(Viewport,data);
 
 }
 
@@ -344,6 +367,17 @@ void pan(Viewport &Viewport,vector<candle> &data,int direction){
         }
     }
 }
+
+void select_candle(Viewport &viewport,int direction){
+    if(direction==1 && viewport.selected_candle<19){
+        viewport.selected_candle++;
+    }
+    else if(direction==-1 && viewport.selected_candle>0){
+        viewport.selected_candle--;
+    }
+    
+}
+
 
 int main(){
 
@@ -426,9 +460,16 @@ int main(){
             if(key=='d'){
                 pan(visible_region,datapoint,1);
             }
+            if(key=='l'){
+                select_candle(visible_region,1);
+            }
+            if(key=='j'){
+                select_candle(visible_region,-1);
+            }
             if(key=='q'){
                 break;
             }
+            
             
     }
     disable_raw_mode();
