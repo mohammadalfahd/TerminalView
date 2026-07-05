@@ -152,14 +152,14 @@ void y_draw_labels(vector<vector<string>> &grid,vector<candle> &data,GridConfig 
 
 void x_draw_label(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport){
 
-    int label_count = 5;
+    int label_count = 3;
 
     for (int i = 0; i < label_count; i++)
     {   
         int screen_index=i*(Viewport.candle_count-1)/(label_count-1);
         int candle_index =Viewport.first_visible_candle+screen_index;
 
-        int x = 1 + screen_index * config.spacing;
+        int x = 1 + screen_index ;
 
         grid[config.total_height-2][x] =data[candle_index].timestamp;
             
