@@ -258,8 +258,22 @@ void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &c
         }
     }
 }
+double calculate_moving_average(vector<candle> &data,int index,int period = 20){
 
-void draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,int period = 5){
+    
+    double sum=0;
+    double sma=0;
+    for(int i=index;i>index-period;i--){
+        if(i<0){
+            continue;
+        }
+        sum+=data[i].closing_price;
+    }
+    sma =sum/period;
+
+    return sma;
+}
+void draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,int period=20){
     int highest_price = get_highest_price(data, Viewport);
     int lowest_price = get_lowest_price(data, Viewport);
 
@@ -268,27 +282,15 @@ void draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridC
 
     int prev_x;
     int prev_y;
+    
 
     int end = min(Viewport.first_visible_candle + Viewport.candle_count,(int)data.size());
     int visible = end - Viewport.first_visible_candle;
+
     for (int screen_index = 0; screen_index < visible; screen_index++)
-    {
-        int data_index = screen_index+Viewport.first_visible_candle;
-
-        if (data_index < period - 1)
-        {
-            continue;
-        }
-
-        double sum = 0;
-
-        for (int j = data_index - period + 1; j <= data_index; j++)
-        {
-            sum += data[j].closing_price;
-        }
-
-        double sma = sum / period;
-
+    {   
+        int data_index=screen_index+Viewport.first_visible_candle;
+        double sma=calculate_moving_average(data,data_index,period);
         int y = scale(config, sma, highest_price, lowest_price);
         int x = 1 + screen_index * config.spacing;
         if (y < 0 || y >= config.chart_height)
@@ -331,7 +333,7 @@ void status_bar(Viewport &Viewport,vector<candle> &data){
     cout<<"\033[32m🟢 O : "<<data[data_index].open_price<<"   🔺 H : "<<data[data_index].high_price<<endl;
     cout<<"\033[91m🔻 L : "<<data[data_index].low_price<<"    🔴 C : "<<data[data_index].closing_price<<endl<<endl;
     cout<<"\033[38;5;202m📦 Volume : "<<data[data_index].volume<<endl;
-    cout<<"\033[35m📈 SMA5 : COMING SOON"<<endl<<endl;
+    cout<<"\033[35m📈 SMA20 : "<<  calculate_moving_average(data,data_index,20) <<endl;
     cout<<"\033[36m*-------------------------------------------------------------*\033[0m"<<endl;
 
 }
