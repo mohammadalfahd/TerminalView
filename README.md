@@ -27,6 +27,8 @@ TerminalView renders financial candlestick charts directly inside the terminal u
 | **D** | Pan chart right        |
 | **J** | Select previous candle |
 | **L** | Select next candle     |
+| **S** | Toggle SMA20           |
+| **E** | Toggle EMA20           |
 | **Q** | Exit the application   |
 
 ---
@@ -119,7 +121,7 @@ TerminalView/
 * [x] Viewport navigation
 * [x] Candle selection
 * [x] Simple Moving Average (SMA)
-* [ ] Exponential Moving Average (EMA)
+* [x] Exponential Moving Average (EMA)
 * [ ] Relative Strength Index (RSI)
 * [ ] MACD
 * [ ] Bollinger Bands
