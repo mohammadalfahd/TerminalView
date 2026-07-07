@@ -25,6 +25,15 @@ struct Viewport{
     int selected_candle=19;
 };
 
+struct Indicators
+{
+    bool sma = true;
+    bool ema = false;
+    bool volume = false;
+    bool macd = false;
+    bool rsi = false;
+};
+
 int get_y_lable_width(vector<candle> &data);
 int get_highest_price(vector<candle> &data,Viewport &Viewport);
 int get_lowest_price(vector<candle> &data,Viewport &Viewport);
@@ -312,7 +321,67 @@ void draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridC
         }
     }
 }
+double calculate_exponential_moving_average(vector<candle> &data,int index,int period = 20){
 
+    double prev_EMA=calculate_moving_average(data,period-1,period);
+    double multiplier=double(2)/(period+1);
+
+
+    if (index < period - 1){
+            return 0;
+            }
+    for(int i=period;i<index;i++){
+        
+        prev_EMA=(data[i].closing_price*multiplier)+(prev_EMA*(1-multiplier));
+    }
+
+    double current_ema=(data[index].closing_price*multiplier)+(prev_EMA*(1-multiplier));
+
+    return current_ema;
+}
+
+void draw_exponential_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,int period=20){
+    int highest_price = get_highest_price(data, Viewport);
+    int lowest_price = get_lowest_price(data, Viewport);
+
+    bool first_point = true;
+    
+
+    int prev_x;
+    int prev_y;
+    
+
+    int end = min(Viewport.first_visible_candle + Viewport.candle_count,(int)data.size());
+    int visible = end - Viewport.first_visible_candle;
+
+    for (int screen_index = 0; screen_index < visible; screen_index++)
+    {   
+        int data_index=screen_index+Viewport.first_visible_candle;
+        double ema=calculate_exponential_moving_average(data,data_index,period);
+        int y = scale(config, ema, highest_price, lowest_price);
+        int x = 1 + screen_index * config.spacing;
+        if (data_index < period - 1){
+            continue;
+        }
+        if (y < 0 || y >= config.chart_height)
+            continue;
+        if (first_point)
+        {   
+            grid[y][x] = "\033[38;5;208m*\033[0m";
+
+            prev_x = x;
+            prev_y = y;
+            first_point = false;
+        }
+        else
+        {
+            grid[y][x] = "\033[38;5;208m*\033[0m";
+
+            prev_x = x;
+            prev_y = y;
+        }
+    }
+}
 void print_grid(vector<vector<string>> &grid){
 
     for(int i=0;i<grid.size();i++){
@@ -332,13 +401,14 @@ void status_bar(Viewport &Viewport,vector<candle> &data){
     cout<<"📅 Date : "<<data[data_index].timestamp<<endl;
     cout<<"\033[32m🟢 O : "<<data[data_index].open_price<<"   🔺 H : "<<data[data_index].high_price<<endl;
     cout<<"\033[91m🔻 L : "<<data[data_index].low_price<<"    🔴 C : "<<data[data_index].closing_price<<endl<<endl;
-    cout<<"\033[38;5;202m📦 Volume : "<<data[data_index].volume<<endl;
+    cout<<"\033[0;33m📦 Volume : "<<data[data_index].volume<<endl;
     cout<<"\033[35m📈 SMA20 : "<<  calculate_moving_average(data,data_index,20) <<endl;
+    cout<<"\033[38;5;202m📈 EMA20 : "<<  calculate_exponential_moving_average(data,data_index,20) <<endl;
     cout<<"\033[36m*-------------------------------------------------------------*\033[0m"<<endl;
 
 }
 
-void render(vector<candle> &data,GridConfig &config,Viewport &Viewport){
+void render(vector<candle> &data,GridConfig &config,Viewport &Viewport,Indicators &Indicators){
     auto grid=draw_grid(config);
 
     draw_axes(grid,config);
@@ -346,7 +416,13 @@ void render(vector<candle> &data,GridConfig &config,Viewport &Viewport){
     x_draw_label(grid,data,config,Viewport);
 
     draw_candle(grid,data,config,Viewport);
-    draw_moving_average(grid,data,config,Viewport,20);
+    
+    if(Indicators.sma){
+        draw_moving_average(grid,data,config,Viewport,20);
+    }
+    if(Indicators.ema){
+        draw_exponential_moving_average(grid,data,config,Viewport,20);
+    }
 
     print_grid(grid);
 
@@ -390,6 +466,7 @@ int main(){
     map<string,vector<candle>> Stock;
     vector<candle> datapoint;
     Viewport visible_region;
+    Indicators toggle_indicators;
 
     while(true){
         cout<<endl<<"1 -> Manual Data Entry"<<endl<<
@@ -452,7 +529,7 @@ int main(){
             
             system("clear");
             cout<<"============= "<<name<<" ================"<<endl;
-            render(datapoint,CONFIG,visible_region);
+            render(datapoint,CONFIG,visible_region,toggle_indicators);
 
             char key=get_key();
 
@@ -467,6 +544,12 @@ int main(){
             }
             if(key=='j'){
                 select_candle(visible_region,-1);
+            }
+            if(key=='s'){
+                toggle_indicators.sma=!toggle_indicators.sma;
+            }
+            if(key=='e'){
+                toggle_indicators.ema=!toggle_indicators.ema;
             }
             if(key=='q'){
                 break;
