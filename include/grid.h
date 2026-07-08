@@ -28,7 +28,8 @@ class GridConfig{
         total_height=chart_height+x_label_height+1;
 
     }
-    
 };
+
+int scale(GridConfig &config,int price,int highest_price,int lowest_price);
 
 #endif

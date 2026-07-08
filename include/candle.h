@@ -1,22 +1,27 @@
-#ifndef CANDLE_H
-#define CANDLE_H
+#pragma once
 
 #include <iostream>
+#include <vector>
+#include "viewport.h"
+using namespace std;
 
 class candle
 {
 public:
-    std::string timestamp;
-
-    double open;
-    double high;
-    double low;
-    double close;
-
-    double adjClose;
-
+    
+    string timestamp;
+    double open_price;
+    double high_price;
+    double low_price;
+    double closing_price;
+    double adj_close;
     double volume;
-
+    
+    
+    
 };
 
-#endif
+int get_highest_price(vector<candle> &data,Viewport &Viewport);
+int get_lowest_price(vector<candle> &data,Viewport &Viewport);
+
+
