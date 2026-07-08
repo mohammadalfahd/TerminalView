@@ -14,6 +14,7 @@ TerminalView renders financial candlestick charts directly inside the terminal u
 * 🎯 Candle selection
 * 📊 Dynamic price scaling
 * 📉 20-Period Simple Moving Average (SMA)
+* 📉 20-Period Exponential Moving Average (EMA)
 * ℹ️ Status bar displaying candle information
 * 🛠️ Modular and easy-to-extend codebase
 
@@ -43,9 +44,11 @@ cd TerminalView
 mkdir build
 cd build
 
-g++ input.h input.cpp main.cpp -o TerminalView
+g++ -Iinclude *.cpp -o TerminalView
 
-Run the executable after the build completes.
+now TerminalView is ready for Launch:
+
+./TerminalView
 
 ---
 
@@ -106,6 +109,7 @@ Providing sensible market data ensures the chart and indicators behave correctly
 ```text
 TerminalView/
 │
+├── include/
 ├── src/
 ├── CSV_files/
 ├── README.md
