@@ -24,4 +24,5 @@ public:
 int get_highest_price(vector<candle> &data,Viewport &Viewport);
 int get_lowest_price(vector<candle> &data,Viewport &Viewport);
 
-
+int get_highest_volume(vector<candle> &data,Viewport &Viewport);
+int get_lowest_volume(vector<candle> &data,Viewport &Viewport);

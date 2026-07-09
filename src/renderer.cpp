@@ -210,9 +210,12 @@ void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewpo
     if(Indicators.ema){
         draw_exponential_moving_average(grid,data,config,Viewport,20);
     }
-
+    
     print_grid(grid);
-
+    
+    if(Indicators.volume){
+        draw_volume(config,data,Viewport);
+    }
     status_bar(Viewport,data);
 
 }

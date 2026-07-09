@@ -31,5 +31,6 @@ class GridConfig{
 };
 
 int scale(GridConfig &config,int price,int highest_price,int lowest_price);
+int vol_scale(GridConfig &config,int volume,int highest_volume,int lowest_volume);
 
 #endif

@@ -13,3 +13,16 @@ int scale(GridConfig &config,int price,int highest_price,int lowest_price){
     return config.chart_height - 1 - scaled_price;
     } 
 }
+
+int vol_scale(GridConfig &config,int volume,int highest_volume,int lowest_volume){
+    int volume_gap=highest_volume-lowest_volume;
+
+    if(volume_gap==0){
+        return config.chart_height/2;
+    }
+    else{
+    int scaled_volume=(volume-lowest_volume)*(config.chart_height-1)/volume_gap;
+
+    return config.chart_height - 1 - scaled_volume;
+    }
+}

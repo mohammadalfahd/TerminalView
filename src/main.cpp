@@ -108,6 +108,9 @@ int main(){
             if(key=='e'){
                 toggle_indicators.ema=!toggle_indicators.ema;
             }
+            if(key=='v'){
+                toggle_indicators.volume=!toggle_indicators.volume;
+            }
             if(key=='q'){
                 break;
             }

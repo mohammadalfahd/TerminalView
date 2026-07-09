@@ -6,6 +6,8 @@
 #include "viewport.h"
 #include "grid.h"
 #include "indicators.h"
+
+
 using namespace std;
 
 class Renderer
@@ -30,4 +32,5 @@ public:
     void print_grid(vector<vector<string>> &grid);
 
     void status_bar(Viewport &Viewport,vector<candle> &data);
+
 };

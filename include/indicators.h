@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "candle.h"
+#include "indicators/volume.h"
 
 using namespace std;
 class Indicators

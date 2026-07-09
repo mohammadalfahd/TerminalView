@@ -1,4 +1,5 @@
 #include "../include/indicators.h"
+#include "../include/indicators/volume.h"
 
 double calculate_moving_average(vector<candle> &data,int index,int period ){
 
