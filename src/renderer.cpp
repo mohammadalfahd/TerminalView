@@ -235,12 +235,25 @@ void Renderer :: print_grid(vector<vector<string>> &grid){
 
 void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data){
     int data_index=Viewport.first_visible_candle+Viewport.selected_candle;
+    double range = data[data_index].high_price - data[data_index].low_price;
+    double change =data[data_index].closing_price -data[data_index].open_price;
+    double percent =change * 100.0 /data[data_index].open_price;
 
     cout<<"\033[36m*-------------------------------------------------------------*"<<endl<<endl;
     cout<<"📅 Date : "<<data[data_index].timestamp<<endl;
+    cout<<"\033[38;5;214m 🕯️ Candle Type : ";
+    if(data[data_index].open_price<data[data_index].closing_price){
+        cout<<"\033[32mBullish"<<endl;
+    }
+    else if(data[data_index].open_price>data[data_index].closing_price){
+        cout<<"\033[91mBearish"<<endl;
+    }
+    else{cout<<"\033[0;33mDoji"<<endl;}
     cout<<"\033[32m🟢 O : "<<data[data_index].open_price<<"   🔺 H : "<<data[data_index].high_price<<endl;
     cout<<"\033[91m🔻 L : "<<data[data_index].low_price<<"    🔴 C : "<<data[data_index].closing_price<<endl<<endl;
-    cout<<"\033[0;33m📦 Volume : "<<data[data_index].volume<<endl;
+    cout<<"\033[38;5;214m📈 Change : "<<change<<"           📊 Change % : "<<percent<<endl;
+    cout<<"\033[38;5;214m📏 Range : "<<range<<endl<<endl;
+    cout<<"\033[38;5;214m📦 Volume : "<<data[data_index].volume<<endl;
     cout<<"\033[35m📈 SMA20 : "<<  calculate_moving_average(data,data_index,20) <<endl;
     cout<<"\033[38;5;202m📈 EMA20 : "<<  calculate_exponential_moving_average(data,data_index,20) <<endl;
     cout<<"\033[36m*-------------------------------------------------------------*\033[0m"<<endl;
