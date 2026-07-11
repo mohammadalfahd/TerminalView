@@ -6,6 +6,7 @@
 
 #include "candle.h"
 #include "indicators/volume.h"
+#include "indicators/macd.h"
 
 using namespace std;
 class Indicators
@@ -21,5 +22,7 @@ class Indicators
 
 double calculate_moving_average(vector<candle> &data,int index,int period = 20);
 double calculate_exponential_moving_average(vector<candle> &data,int index,int period = 20);
+double calculate_moving_average(vector<double> &data,int index,int period = 20);
+double calculate_exponential_moving_average(vector<double> &data,int index,int period = 20);
 
 #endif

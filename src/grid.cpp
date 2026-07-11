@@ -1,28 +1,17 @@
 #include "../include/grid.h"
 
-int scale(GridConfig &config,int price,int highest_price,int lowest_price){
+int scale(GridConfig &config,int value,int highest,int lowest){
 
-    int price_gap=highest_price-lowest_price;
+    int gap=highest-lowest;
 
-    if(price_gap==0){
+    if(gap==0){
         return config.chart_height/2;
     }
     else{
-    int scaled_price=(price-lowest_price)*(config.chart_height-1)/price_gap;
+    int scaled_val=(value-lowest)*(config.chart_height-1)/gap;
 
-    return config.chart_height - 1 - scaled_price;
+    return config.chart_height - 1 - scaled_val;
     } 
 }
 
-int vol_scale(GridConfig &config,int volume,int highest_volume,int lowest_volume){
-    int volume_gap=highest_volume-lowest_volume;
 
-    if(volume_gap==0){
-        return config.chart_height/2;
-    }
-    else{
-    int scaled_volume=(volume-lowest_volume)*(config.chart_height-1)/volume_gap;
-
-    return config.chart_height - 1 - scaled_volume;
-    }
-}

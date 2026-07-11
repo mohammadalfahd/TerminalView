@@ -111,6 +111,9 @@ int main(){
             if(key=='v'){
                 toggle_indicators.volume=!toggle_indicators.volume;
             }
+            if(key=='m'){
+                toggle_indicators.macd=!toggle_indicators.macd;
+            }
             if(key=='q'){
                 break;
             }

@@ -216,6 +216,11 @@ void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewpo
     if(Indicators.volume){
         draw_volume(config,data,Viewport);
     }
+
+    if(Indicators.macd){
+        draw_macd(config,data,Viewport);
+    }
+    
     status_bar(Viewport,data);
 
 }

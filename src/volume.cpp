@@ -37,7 +37,7 @@ void draw_volume(GridConfig &config,std::vector<candle>& data,Viewport &Viewport
     for(int screen_index = 0; screen_index < visible; screen_index++){
     int data_index = Viewport.first_visible_candle + screen_index;
 
-        int vol_y=vol_scale(config,data[data_index].volume,highest_volume,lowest_volume);
+        int vol_y=scale(config,data[data_index].volume,highest_volume,lowest_volume);
 
 
         bool selected=(screen_index==Viewport.selected_candle);
