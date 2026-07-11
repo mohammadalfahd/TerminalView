@@ -93,15 +93,15 @@ void draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
     highest = maxAbs;
     lowest  = -maxAbs;
 
-    const int label_count = 5;
+    const int y_label_count = 5;
 
-    for (int i = 0; i < label_count; i++){
+    for (int i = 0; i < y_label_count; i++){
 
-        int row = i * ((config.chart_height/2) - 1) / (label_count - 1);
+        int row = i * ((config.chart_height) - 1) / (y_label_count - 1);
 
-        double macd_label =highest -row * (highest - lowest) / ((config.chart_height/2) - 1);
+        double macd_label =highest -row * (highest - lowest) / ((config.chart_height) - 1);
 
-        macd_grid[row+1][config.chart_width + 2] = to_string(macd_label);
+        macd_grid[row][config.chart_width + 2] = to_string(macd_label);
         
     }
 
