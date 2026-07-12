@@ -221,6 +221,10 @@ void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewpo
         draw_macd(config,data,Viewport);
     }
     
+    if(Indicators.rsi){
+        draw_rsi(config,data,Viewport);
+    }
+    
     status_bar(Viewport,data);
 
 }

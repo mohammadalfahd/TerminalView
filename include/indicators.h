@@ -7,6 +7,7 @@
 #include "candle.h"
 #include "indicators/volume.h"
 #include "indicators/macd.h"
+#include "indicators/rsi.h"
 
 using namespace std;
 class Indicators

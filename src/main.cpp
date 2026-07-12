@@ -114,6 +114,9 @@ int main(){
             if(key=='m'){
                 toggle_indicators.macd=!toggle_indicators.macd;
             }
+            if(key=='r'){
+                toggle_indicators.rsi=!toggle_indicators.rsi;
+            }
             if(key=='q'){
                 break;
             }
