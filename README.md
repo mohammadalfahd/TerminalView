@@ -15,6 +15,7 @@ TerminalView renders financial candlestick charts directly inside the terminal u
 * 📊 Dynamic price scaling
 * 📉 20-Period Simple Moving Average (SMA)
 * 📉 20-Period Exponential Moving Average (EMA)
+* 📉 14-Relative Strength Index (RSI)
 * 📊 Volume Chart
 * 📊 MACD Indicator
 * ℹ️ Status bar displaying candle information
@@ -34,6 +35,7 @@ TerminalView renders financial candlestick charts directly inside the terminal u
 | **E** | Toggle EMA20           |
 | **V** | Toggle Volume Chart    |
 | **M** | Toggle MACD            |
+| **R** | Toggle RSI             |
 | **Q** | Exit the application   |
 
 ---
@@ -132,7 +134,7 @@ TerminalView/
 * [x] Candle selection
 * [x] Simple Moving Average (SMA)
 * [x] Exponential Moving Average (EMA)
-* [ ] Relative Strength Index (RSI)
+* [x] Relative Strength Index (RSI)
 * [x] MACD
 * [ ] Bollinger Bands
 * [x] Volume chart
