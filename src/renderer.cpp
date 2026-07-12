@@ -248,6 +248,8 @@ void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data){
     double change =data[data_index].closing_price -data[data_index].open_price;
     double percent =change * 100.0 /data[data_index].open_price;
 
+    double rsi=calculate_RSI(data)[data_index].rsi;
+
     cout<<"\033[36m*-------------------------------------------------------------*"<<endl<<endl;
     cout<<"📅 Date : "<<data[data_index].timestamp<<endl;
     cout<<"\033[38;5;214m 🕯️ Candle Type : ";
@@ -263,8 +265,8 @@ void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data){
     cout<<"\033[38;5;214m📈 Change : "<<change<<"           📊 Change % : "<<percent<<endl;
     cout<<"\033[38;5;214m📏 Range : "<<range<<endl<<endl;
     cout<<"\033[38;5;214m📦 Volume : "<<data[data_index].volume<<endl;
-    cout<<"\033[35m📈 SMA20 : "<<  calculate_moving_average(data,data_index,20) <<endl;
-    cout<<"\033[38;5;202m📈 EMA20 : "<<  calculate_exponential_moving_average(data,data_index,20) <<endl;
+    cout<<"\033[35m📈 SMA20 : "<<  calculate_moving_average(data,data_index,20) <<"           \033[38;5;202m📈 EMA20 : "<<  calculate_exponential_moving_average(data,data_index,20) <<endl;
+    cout<<"\033[38;5;214m📈 RSI20 : "<<rsi <<endl;
     cout<<"\033[36m*-------------------------------------------------------------*\033[0m"<<endl;
 
 }
