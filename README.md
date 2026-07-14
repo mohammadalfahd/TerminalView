@@ -146,7 +146,27 @@ TerminalView/
 
 ## Screenshots
 
-Screenshots and demonstrations will be added as the project evolves.
+## Main Chart
+
+![Main Chart](screenshots/Candlestick Chart.jpg)
+
+## SMA & EMA
+
+![SMA EMA](screenshots/SMA ,EMA.png)
+
+## Volume
+
+![Volume](screenshots/volume.jpg)
+
+## RSI
+
+![RSI](screenshots/rsi.jpg)
+
+## MACD
+
+![MACD](screenshots/MACD.jpg)
+
+
 
 ---
 
