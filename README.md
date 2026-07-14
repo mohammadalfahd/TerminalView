@@ -148,23 +148,23 @@ TerminalView/
 
 ## Main Chart
 
-![Main Chart](../screenshots/Candlestick Chart.jpg)
+![Main Chart](screenshots/Candlestick Chart.jpg)
 
 ## SMA & EMA
 
-![SMA EMA](../screenshots/SMA ,EMA.png)
+![SMA EMA](screenshots/SMA ,EMA.png)
 
 ## Volume
 
-![Volume](../screenshots/volume.jpg)
+![Volume](screenshots/volume.jpg)
 
 ## RSI
 
-![RSI](../screenshots/rsi.jpg)
+![RSI](screenshots/rsi.jpg)
 
 ## MACD
 
-![MACD](../screenshots/MACD.jpg)
+![MACD](screenshots/MACD.jpg)
 
 
 
