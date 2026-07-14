@@ -112,15 +112,12 @@ void Renderer :: draw_candle(vector<vector<string>> &grid,vector<candle> &data,G
     }
 }
 
-void Renderer :: draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,int period=20){
+void Renderer :: draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,sma &sma20){
+    
+    
     int highest_price = get_highest_price(data, Viewport);
     int lowest_price = get_lowest_price(data, Viewport);
-
-    bool first_point = true;
     
-
-    int prev_x;
-    int prev_y;
     
 
     int end = min(Viewport.first_visible_candle + Viewport.candle_count,(int)data.size());
@@ -129,26 +126,16 @@ void Renderer :: draw_moving_average(vector<vector<string>> &grid,vector<candle>
     for (int screen_index = 0; screen_index < visible; screen_index++)
     {   
         int data_index=screen_index+Viewport.first_visible_candle;
-        double sma=calculate_moving_average(data,data_index,period);
+        double sma=sma20.sma_val[data_index];
         int y = scale(config, sma, highest_price, lowest_price);
+        cout << "High: " << highest_price
+     << " Low: " << lowest_price
+     << " SMA: " << sma
+     << " Y: " << y << endl;
         int x = 1 + screen_index * config.spacing;
         if (y < 0 || y >= config.chart_height)
-            continue;
-        if (first_point)
-        {   
-            grid[y][x] = "\033[95m*\033[0m";
-
-            prev_x = x;
-            prev_y = y;
-            first_point = false;
-        }
-        else
-        {
-            grid[y][x] = "\033[95m*\033[0m";
-
-            prev_x = x;
-            prev_y = y;
-        }
+            continue;     
+        grid[y][x] = "\033[95m*\033[0m";
     }
 }
 
@@ -195,7 +182,7 @@ void Renderer :: draw_exponential_moving_average(vector<vector<string>> &grid,ve
     }
 }
 
-void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewport,Indicators &Indicators){
+void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewport,Indicators &Indicators,sma &sma20){
     auto grid=draw_grid(config);
 
     draw_axes(grid,config);
@@ -205,7 +192,7 @@ void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewpo
     draw_candle(grid,data,config,Viewport);
     
     if(Indicators.sma){
-        draw_moving_average(grid,data,config,Viewport,20);
+        draw_moving_average(grid,data,config,Viewport,sma20);
     }
     if(Indicators.ema){
         draw_exponential_moving_average(grid,data,config,Viewport,20);

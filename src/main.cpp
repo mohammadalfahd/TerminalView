@@ -24,6 +24,8 @@ int main(){
     vector<candle> datapoint;
     Viewport visible_region;
     Indicators toggle_indicators;
+    sma sma20;
+
     Renderer renderer;
 
     while(true){
@@ -78,6 +80,8 @@ int main(){
 
     Stock.emplace(name,datapoint);
 
+    sma20.initialise(datapoint);
+
 
     enable_raw_mode();
 
@@ -86,7 +90,7 @@ int main(){
             
             system("clear");
             cout<<"============= "<<name<<" ================"<<endl;
-            renderer.render(datapoint,CONFIG,visible_region,toggle_indicators);
+            renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20);
 
             char key=get_key();
 

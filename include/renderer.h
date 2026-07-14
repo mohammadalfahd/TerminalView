@@ -23,11 +23,11 @@ public:
     void y_draw_label(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport);
     void draw_candle(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport);
 
-    void draw_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,int period);
+    void draw_moving_average( vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,sma &sma20);
 
     void draw_exponential_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,int period);
 
-    void render(std::vector<candle>& data,GridConfig& config,Viewport& viewport,Indicators& indicators);
+    void render(std::vector<candle>& data,GridConfig& config,Viewport& viewport,Indicators& indicators,sma &sma20);
     
     void print_grid(vector<vector<string>> &grid);
 

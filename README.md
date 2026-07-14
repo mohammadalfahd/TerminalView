@@ -131,6 +131,7 @@ TerminalView/
 * [x] Candlestick rendering
 * [x] Dynamic price scaling
 * [x] Viewport navigation
+* [ ] Real Time Data Parsing
 * [x] Candle selection
 * [x] Simple Moving Average (SMA)
 * [x] Exponential Moving Average (EMA)

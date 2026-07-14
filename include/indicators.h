@@ -8,6 +8,7 @@
 #include "indicators/volume.h"
 #include "indicators/macd.h"
 #include "indicators/rsi.h"
+#include "indicators/sma.h"
 
 using namespace std;
 class Indicators

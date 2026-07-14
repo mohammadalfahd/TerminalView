@@ -30,7 +30,7 @@ class GridConfig{
     }
 };
 
-int scale(GridConfig &config,int price,int highest_price,int lowest_price);
+int scale(GridConfig &config,double val,double highest_val,double lowest_val);
 
 
 #endif
