@@ -1,53 +1,88 @@
 #include "../include/indicators/macd.h"
-#include "../include/indicators.h"
+#include <cmath>
 
+double macd :: get_max_macd(Viewport &Viewport){
 
-MACDData calculate_macd(vector<candle> &data){
-    MACDData macd_data;
-
-    macd_data.macd.resize(data.size());
-    macd_data.signal.resize(data.size());
-    macd_data.histogram.resize(data.size());
-
-    for(int i=0;i<data.size();i++){
-        double ema12 = calculate_exponential_moving_average(data,i,12);
-        double ema26 = calculate_exponential_moving_average(data,i,26);
-
-        macd_data.macd[i]=ema12-ema26;
-        macd_data.signal[i]=calculate_exponential_moving_average(macd_data.macd,i,9);
-        macd_data.histogram[i]=macd_data.macd[i]-macd_data.signal[i];
-
-    }
-
-    return macd_data;
-
-}
-double get_max_macd(MACDData &macd_data,Viewport &Viewport){
-
-    double highest = max(max(macd_data.macd[Viewport.first_visible_candle],macd_data.signal[Viewport.first_visible_candle]),macd_data.histogram[Viewport.first_visible_candle]);
-    int end = min((Viewport.first_visible_candle + Viewport.candle_count),int(macd_data.macd.size()));
+    double highest = max(max(macd_val[Viewport.first_visible_candle],signal[Viewport.first_visible_candle]),histogram[Viewport.first_visible_candle]);
+    int end = min((Viewport.first_visible_candle + Viewport.candle_count),int(macd_val.size()));
     for(int i=Viewport.first_visible_candle+1;i<end;i++){
-    
-        highest = max(highest,max(max(macd_data.macd[i],macd_data.signal[i]),macd_data.histogram[i])); 
+        
+        highest = max(highest,max(max(macd_val[i],signal[i]),histogram[i])); 
     }
 
     return highest;
 }
 
-double get_min_macd(MACDData &macd_data,Viewport &Viewport){
+double macd :: get_min_macd(Viewport &Viewport){
 
-    double lowest = min(min(macd_data.macd[Viewport.first_visible_candle],macd_data.signal[Viewport.first_visible_candle]),macd_data.histogram[Viewport.first_visible_candle]);
-    int end = min((Viewport.first_visible_candle + Viewport.candle_count),int(macd_data.macd.size()));
+    double lowest = min(min(macd_val[Viewport.first_visible_candle],signal[Viewport.first_visible_candle]),histogram[Viewport.first_visible_candle]);
+    int end = min((Viewport.first_visible_candle + Viewport.candle_count),int(macd_val.size()));
     for(int i=Viewport.first_visible_candle+1;i<end;i++){
     
-        lowest = min(lowest, min(min(macd_data.macd[i],macd_data.signal[i]),macd_data.histogram[i]));
+        lowest = min(lowest, min(min(macd_val[i],signal[i]),histogram[i]));
     }
 
     return lowest;
 }
+void macd :: initialise(vector<candle> &data){
 
-void draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
-    MACDData macd_data=calculate_macd(data);
+    sma sma12(12);
+    sma sma26(26);
+    sma sma9(9);
+
+
+    sma12.initialise(data);
+    sma26.initialise(data);
+    ema12.initialise(data,sma12);
+    ema26.initialise(data,sma26);
+
+    for(int i=0;i<ema26.period-1;i++){
+        macd_val.push_back(NAN);
+    }
+    vector<double> valid_macd;
+    for(int i=ema26.period-1;i<data.size();i++){
+        macd_val.push_back(ema12.ema_val[i]-ema26.ema_val[i]);
+        valid_macd.push_back(ema12.ema_val[i]-ema26.ema_val[i]);
+    }
+
+    sma9.initialise(valid_macd);
+    ema9.initialise(valid_macd,sma9);
+
+    signal.insert(signal.begin(),ema26.period-1+ema9.period-1,NAN);
+    for(int i=0;i<ema9.period-1;i++){
+        signal.push_back(NAN);
+    }
+    for(int i=ema9.period-1;i<data.size();i++){
+        signal.push_back(ema9.ema_val[i]);
+    }
+
+    for(int i=0;i<ema26.period-1;i++){
+        histogram.push_back(NAN);
+    }
+    for(int i=ema26.period-1;i<data.size();i++){
+        histogram.push_back(macd_val[i]-signal[i]);
+    }
+
+    //CHECKS
+
+}
+
+void macd :: update(candle &newcandle){
+
+    ema12.update(newcandle);
+    ema26.update(newcandle);
+    
+    macd_val.push_back(ema12.ema_val.back()-ema26.ema_val.back());
+
+    ema9.update(macd_val.back());
+    signal.push_back(ema9.ema_val.back());
+
+    histogram.push_back(macd_val.back()-signal.back());
+
+}
+
+void macd :: draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
+
     vector<vector<string>> macd_grid(config.total_height,vector<string>(config.total_width," "));
 
     for(int i=0;i<config.total_height;i++){
@@ -85,8 +120,8 @@ void draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
     }
 
 
-    double highest =get_max_macd(macd_data,Viewport);
-    double lowest =get_min_macd(macd_data,Viewport);
+    double highest =get_max_macd(Viewport);
+    double lowest =get_min_macd(Viewport);
 
     double maxAbs = max(abs(highest), abs(lowest));
 
@@ -112,15 +147,17 @@ void draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
     {
         int data_index = Viewport.first_visible_candle + screen_index;
 
-        double histogram = macd_data.histogram[data_index];
+        double hist_point = histogram[data_index];
 
-        int hist_y = scale(config, histogram, highest, lowest);
+        int hist_y = scale(config, hist_point, highest, lowest);
 
         bool selected = (screen_index == Viewport.selected_candle);
 
         int x = 1 + screen_index * config.spacing;
-
-        if (histogram >= 0)
+        if(hist_y < 0 || hist_y >= config.total_height ){
+            continue;
+        }
+        if (hist_point >= 0)
         {
 
             for (int y = hist_y; y <= zero_row; y++)
@@ -144,21 +181,18 @@ void draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
 
     for (int screen_index = 0;screen_index < visible_count;screen_index++)
     {   int data_index = Viewport.first_visible_candle + screen_index;
-        int macd_y   = scale(config, macd_data.macd[data_index], highest, lowest);
-        int signal_y = scale(config, macd_data.signal[data_index], highest, lowest);
+        if(isnan(signal[data_index])){continue;}
+        int macd_y   = scale(config,macd_val[data_index], highest, lowest);
+        int signal_y = scale(config,signal[data_index], highest, lowest);
         
         int x = 1 + screen_index * config.spacing;
 
+        if(signal_y < 0 || signal_y >= config.total_height ||macd_y < 0 || macd_y >= config.total_height ){
+            continue;
+        }
+        
         macd_grid[macd_y][x]   = "\033[36m●\033[0m";   
-        if(signal_y < 0 || signal_y >= config.total_height)
-{
-    cout << "signal_y = " << signal_y
-         << " data_index = " << data_index
-         << endl;
-        exit(0);
-}
-
-macd_grid[signal_y][x] = "\033[35m●\033[0m";   
+        macd_grid[signal_y][x] = "\033[35m●\033[0m";   
     }
 
     for(int i=0;i<macd_grid.size();i++){

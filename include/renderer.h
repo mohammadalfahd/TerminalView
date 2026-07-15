@@ -27,7 +27,7 @@ public:
 
     void draw_exponential_moving_average(vector<vector<string>> &grid,vector<candle> &data,GridConfig &config,Viewport &Viewport,ema &ema20);
 
-    void render(std::vector<candle>& data,GridConfig& config,Viewport& viewport,Indicators& indicators,sma &sma20,ema &ema20);
+    void render(std::vector<candle>& data,GridConfig& config,Viewport& viewport,Indicators& indicators,sma &sma20,ema &ema20,macd &macd);
     
     void print_grid(vector<vector<string>> &grid);
 

@@ -1,5 +1,30 @@
 #include "../include/indicators/sma.h"
 #include <cmath>
+
+
+void sma :: initialise(vector<double> &data){
+
+    sma_val.clear();
+
+    rolling_sum=0;
+    for(int i=0;i<period-1;i++){
+        sma_val.push_back(NAN);
+    }
+    for(int i=0;i<period;i++){
+        rolling_sum += data[i];
+    }
+
+    sma_val.push_back(rolling_sum/period);
+
+    for (int i = period; i < data.size(); i++){
+        rolling_sum += data[i];
+        rolling_sum -= data[i - period];
+
+        sma_val.push_back(rolling_sum / period);
+    }
+    
+}
+
 void sma :: initialise(vector<candle> &data){
 
     sma_val.clear();
@@ -21,6 +46,18 @@ void sma :: initialise(vector<candle> &data){
         sma_val.push_back(rolling_sum / period);
     }
     
+}
+
+void sma :: update(double &val){
+    
+    rolling_sum-=window.front();
+    window.pop();
+    
+    rolling_sum+=val;
+    window.push(val);
+
+    sma_val.push_back(rolling_sum/period);
+
 }
 
 void sma :: update(candle &newcandle){

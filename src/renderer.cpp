@@ -166,7 +166,7 @@ void Renderer :: draw_exponential_moving_average(vector<vector<string>> &grid,ve
     }
 }
 
-void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewport,Indicators &Indicators,sma &sma20,ema &ema20){
+void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewport,Indicators &Indicators,sma &sma20,ema &ema20,macd &macd){
     auto grid=draw_grid(config);
 
     draw_axes(grid,config);
@@ -189,7 +189,7 @@ void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewpo
     }
 
     if(Indicators.macd){
-        draw_macd(config,data,Viewport);
+        macd.draw_macd(config,data,Viewport);
     }
     
     if(Indicators.rsi){
