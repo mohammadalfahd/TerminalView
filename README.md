@@ -148,11 +148,11 @@ TerminalView/
 
 ## Main Chart
 
-![Main Chart](screenshots/Candlestick Chart.jpg)
+![Main Chart](screenshots/CandlestickChart.jpg)
 
-## SMA & EMA
+## SMA EMA
 
-![SMA EMA](screenshots/SMA ,EMA.png)
+![SMA EMA](screenshots/smaema.jpg)
 
 ## Volume
 

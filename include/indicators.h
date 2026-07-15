@@ -9,6 +9,7 @@
 #include "indicators/macd.h"
 #include "indicators/rsi.h"
 #include "indicators/sma.h"
+#include "indicators/ema.h"
 
 using namespace std;
 class Indicators

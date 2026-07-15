@@ -25,7 +25,7 @@ int main(){
     Viewport visible_region;
     Indicators toggle_indicators;
     sma sma20;
-
+    ema ema20;
     Renderer renderer;
 
     while(true){
@@ -81,7 +81,7 @@ int main(){
     Stock.emplace(name,datapoint);
 
     sma20.initialise(datapoint);
-
+    ema20.initialise(datapoint,sma20);
 
     enable_raw_mode();
 
@@ -90,7 +90,7 @@ int main(){
             
             system("clear");
             cout<<"============= "<<name<<" ================"<<endl;
-            renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20);
+            renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20);
 
             char key=get_key();
 
