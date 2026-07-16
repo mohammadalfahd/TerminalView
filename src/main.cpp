@@ -27,6 +27,7 @@ int main(){
     sma sma20;
     ema ema20;
     macd macd;
+    rsi rsi14;
     Renderer renderer;
 
     while(true){
@@ -84,6 +85,7 @@ int main(){
     sma20.initialise(datapoint);
     ema20.initialise(datapoint,sma20);
     macd.initialise(datapoint);
+    rsi14.initialise(datapoint);
 
     enable_raw_mode();
 
@@ -92,7 +94,7 @@ int main(){
             
             system("clear");
             cout<<"============= "<<name<<" ================"<<endl;
-            renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd);
+            renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
 
             char key=get_key();
 

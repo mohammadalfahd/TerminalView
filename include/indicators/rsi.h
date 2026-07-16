@@ -5,19 +5,27 @@
 #include "../candle.h"
 
 
-constexpr double RSI_OVERBOUGHT = 70.0;
-constexpr double RSI_NEUTRAL    = 50.0;
-constexpr double RSI_OVERSOLD   = 30.0;
 
-struct rsipoint{
+class rsi{
+    public:
+    int period=14;
 
-    double avg_gain;
-    double avg_loss;
+    double avg_gain=0;
+    double avg_loss=0;
+    
+    vector<double> rsi_val;
+    
+    candle prev_candle;
 
-    double rs;
-    double rsi;
+    double RSI_OVERBOUGHT = 70.0;
+    double RSI_NEUTRAL    = 50.0;
+    double RSI_OVERSOLD   = 30.0;
+
+    void initialise(vector<candle> &data);
+    void update(candle &newcandle);
+
+    void draw_rsi(GridConfig& config, vector<candle> &data, Viewport& viewport);
 };
 
-vector<rsipoint> calculate_RSI( vector<candle>& data,int period = 14);
-void draw_rsi(GridConfig& config, vector<candle> &data, Viewport& viewport);
+
 

@@ -166,7 +166,7 @@ void Renderer :: draw_exponential_moving_average(vector<vector<string>> &grid,ve
     }
 }
 
-void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewport,Indicators &Indicators,sma &sma20,ema &ema20,macd &macd){
+void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewport,Indicators &Indicators,sma &sma20,ema &ema20,macd &macd,rsi &rsi14){
     auto grid=draw_grid(config);
 
     draw_axes(grid,config);
@@ -193,10 +193,10 @@ void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewpo
     }
     
     if(Indicators.rsi){
-        draw_rsi(config,data,Viewport);
+        rsi14.draw_rsi(config,data,Viewport);
     }
     
-    status_bar(Viewport,data);
+    status_bar(Viewport,data,rsi14);
 
 }
 
@@ -213,13 +213,13 @@ void Renderer :: print_grid(vector<vector<string>> &grid){
 }
 
 
-void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data){
+void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data,rsi &rsi14){
     int data_index=Viewport.first_visible_candle+Viewport.selected_candle;
     double range = data[data_index].high_price - data[data_index].low_price;
     double change =data[data_index].closing_price -data[data_index].open_price;
     double percent =change * 100.0 /data[data_index].open_price;
 
-    double rsi=calculate_RSI(data)[data_index].rsi;
+    double rsi=rsi14.rsi_val[data_index];
 
     cout<<"\033[36m*-------------------------------------------------------------*"<<endl<<endl;
     cout<<"📅 Date : "<<data[data_index].timestamp<<endl;
