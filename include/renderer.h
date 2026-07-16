@@ -31,6 +31,6 @@ public:
     
     void print_grid(vector<vector<string>> &grid);
 
-    void status_bar(Viewport &Viewport,vector<candle> &data,rsi &rsi14);
+    void status_bar(Viewport &Viewport,vector<candle> &data,sma &sma20,ema &ema20,rsi &rsi14);
 
 };

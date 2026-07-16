@@ -128,10 +128,6 @@ void Renderer :: draw_moving_average(vector<vector<string>> &grid,vector<candle>
         int data_index=screen_index+Viewport.first_visible_candle;
         double sma=sma20.sma_val[data_index];
         int y = scale(config, sma, highest_price, lowest_price);
-        cout << "High: " << highest_price
-     << " Low: " << lowest_price
-     << " SMA: " << sma
-     << " Y: " << y << endl;
         int x = 1 + screen_index * config.spacing;
         if (y < 0 || y >= config.chart_height)
             continue;     
@@ -196,7 +192,7 @@ void Renderer :: render(vector<candle> &data,GridConfig &config,Viewport &Viewpo
         rsi14.draw_rsi(config,data,Viewport);
     }
     
-    status_bar(Viewport,data,rsi14);
+    status_bar(Viewport,data,sma20,ema20,rsi14);
 
 }
 
@@ -213,7 +209,7 @@ void Renderer :: print_grid(vector<vector<string>> &grid){
 }
 
 
-void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data,rsi &rsi14){
+void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data,sma &sma20,ema &ema20,rsi &rsi14){
     int data_index=Viewport.first_visible_candle+Viewport.selected_candle;
     double range = data[data_index].high_price - data[data_index].low_price;
     double change =data[data_index].closing_price -data[data_index].open_price;
@@ -236,7 +232,7 @@ void Renderer :: status_bar(Viewport &Viewport,vector<candle> &data,rsi &rsi14){
     cout<<"\033[38;5;214m📈 Change : "<<change<<"           📊 Change % : "<<percent<<endl;
     cout<<"\033[38;5;214m📏 Range : "<<range<<endl<<endl;
     cout<<"\033[38;5;214m📦 Volume : "<<data[data_index].volume<<endl;
-    cout<<"\033[35m📈 SMA20 : "<<  calculate_moving_average(data,data_index,20) <<"           \033[38;5;202m📈 EMA20 : "<<  calculate_exponential_moving_average(data,data_index,20) <<endl;
+    cout<<"\033[35m📈 SMA20 : "<<  sma20.sma_val[data_index] <<"           \033[38;5;202m📈 EMA20 : "<< ema20.ema_val[data_index] <<endl;
     cout<<"\033[38;5;214m📈 RSI20 : "<<rsi <<endl;
     cout<<"\033[36m*-------------------------------------------------------------*\033[0m"<<endl;
 
