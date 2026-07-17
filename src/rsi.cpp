@@ -120,7 +120,7 @@ void rsi :: draw_rsi(GridConfig& config,vector<candle> &data, Viewport& Viewport
     int highest_rsi = 100;
     int lowest_rsi  = 0;
 
-    const int y_label_count = 5;
+    const int y_label_count = 19;
 
     for (int i = 0; i < y_label_count; i++)
     {
