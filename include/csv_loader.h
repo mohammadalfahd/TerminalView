@@ -8,7 +8,7 @@
 #include "candle.h"
 using namespace std;
 
-vector<candle> load_csv(string file_address)
+vector<candle> load_csv(string &file_address)
 {
     vector<candle> vector_data;
 
