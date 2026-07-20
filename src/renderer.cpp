@@ -35,7 +35,7 @@ void Renderer :: y_draw_label(vector<vector<string>> &grid,vector<candle> &data,
     int highest = get_highest_price(data,Viewport);
     int lowest  = get_lowest_price(data,Viewport);
 
-    const int label_count = 5;
+    const int label_count = 19;
 
     for (int i = 0; i < label_count; i++)
     {

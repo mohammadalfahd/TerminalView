@@ -128,7 +128,7 @@ void macd :: draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Vi
     highest = maxAbs;
     lowest  = -maxAbs;
 
-    const int y_label_count = 5;
+    const int y_label_count = 19;
 
     for (int i = 0; i < y_label_count; i++){
 
