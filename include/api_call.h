@@ -12,7 +12,7 @@ class network_client{
 
     std::string response;
 
-    std::string symbol="BTC-USD";
+    std::string symbol="BTCUSDT";
     std::string interval="1h";
     size_t limit=200;
     time_t start_time;
@@ -50,7 +50,7 @@ class network_client{
 
     void make_url(){
 
-        url="https://api.binance/api/v3/klines?symbol="+symbol+"&interval="+interval+"&limit="+std::to_string(limit);
+        url="https://api.binance.com/api/v3/klines?symbol="+symbol+"&interval="+interval+"&limit="+std::to_string(limit);
 
     }
     static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);

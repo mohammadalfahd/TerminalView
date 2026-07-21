@@ -11,6 +11,8 @@
 #include "../include/input.h"
 #include "../include/indicators.h"
 #include "../include/renderer.h"
+#include "../include/api_call.h"
+#include "../include/json_parser.h"
 
 using namespace std;
 
@@ -32,7 +34,9 @@ int main(){
 
     while(true){
         cout<<endl<<"1 -> Manual Data Entry"<<endl<<
-            "2 -> CSV Import "<<endl<<"Enter anything else to see graph "<<endl;
+            "2 -> CSV Import "<<endl<<
+            "3 -> RealTime Candlestick Chart "<<endl<<"Enter anything else to see graph "<<endl;
+
         string choice;
         cout<<"Enter choice : ";
         cin>>choice;
@@ -75,6 +79,26 @@ int main(){
             file_address="../CSV_files/"+file_name;
 
             datapoint=load_csv(file_address);
+        }
+        else if(choice=="3"){
+            network_client httpclient;
+
+            httpclient.make_url();
+            httpclient.setup();
+            bool data_fetch=httpclient.fetch_data();
+
+            if(data_fetch){
+                json_parser json;
+
+                bool json_parse=json.parse_json(httpclient.response);
+
+                if(json_parse){
+                    datapoint=json.set_data();
+                }
+                
+            }
+            else{cerr<<"DATA FETCH FAILEDn\n";}
+
         }
         else {cout<<endl<<"Data Capture Terminated"<<endl; break;};
     }
