@@ -18,6 +18,8 @@ class network_client{
     time_t start_time;
     time_t end_time;
 
+    std::string url;
+
     long timeout=5L;
     long follow_redirects=1L;
     std::string user_agent="TerminalView";
@@ -46,8 +48,13 @@ class network_client{
         }
     }
 
+    void make_url(){
+
+        url="https://api.binance/api/v3/klines?symbol="+symbol+"&interval="+interval+"&limit="+std::to_string(limit);
+
+    }
     static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);
-    void setup(std::string &url);
+    void setup();
     bool fetch_data();
 };
 

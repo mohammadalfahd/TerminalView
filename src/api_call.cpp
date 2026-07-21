@@ -9,7 +9,7 @@ size_t network_client :: writecallback(void* content ,size_t size,size_t nmemb,v
     return totalbytes;
 }
 
-void network_client :: setup(std::string &url){
+void network_client :: setup(){
 
     if(!curl){
         std::cout<<"Failed Initialization\n";
