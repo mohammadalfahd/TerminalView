@@ -3,6 +3,8 @@
 #include <map>
 #include <fstream>
 #include <sstream>
+#include <chrono>
+#include <thread>
 
 #include "../include/candle.h"
 #include "../include/viewport.h"
@@ -83,21 +85,53 @@ int main(){
         else if(choice=="3"){
             network_client httpclient;
 
-            httpclient.make_url();
             httpclient.setup();
+
+            cout<<"Enter Symbol : ";
+            cin>>httpclient.symbol;
+
+            cout<<"Enter Interval : ";
+            cin>>httpclient.interval;
+
             bool data_fetch=httpclient.fetch_data();
+            json_parser json;
 
-            if(data_fetch){
-                json_parser json;
+            while(true){
+                if(datapoint.empty()){
+                    if(data_fetch){
 
-                bool json_parse=json.parse_json(httpclient.response);
+                        bool json_parse=json.parse_json(httpclient.response);
 
-                if(json_parse){
-                    datapoint=json.set_data();
+                        if(json_parse){
+                            datapoint=json.set_data();
+                        }
+
+                    }
+                    else{cerr<<"DATA FETCH FAILEDn\n";}
+
                 }
-                
+                else{
+
+                    httpclient.limit=1;
+
+                       httpclient.fetch_data();
+
+                       bool json_parse=json.parse_json(httpclient.response);
+
+                       if(json_parse){
+                            vector<candle> newcandle=json.set_data();
+
+                            datapoint.push_back(newcandle[0]);
+                       }
+                   
+                }
+
+                int wait_time=httpclient.get_interval_seconds();
+
+                std::this_thread::sleep_for(std::chrono::seconds(wait_time));
             }
-            else{cerr<<"DATA FETCH FAILEDn\n";}
+
+            
 
         }
         else {cout<<endl<<"Data Capture Terminated"<<endl; break;};

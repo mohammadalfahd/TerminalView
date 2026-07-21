@@ -18,7 +18,6 @@ void network_client :: setup(){
     
     headers=curl_slist_append(headers,"Accept: application/json");
 
-    curl_easy_setopt(curl,CURLOPT_URL,url.c_str());
     curl_easy_setopt(curl,CURLOPT_WRITEFUNCTION,writecallback);
     curl_easy_setopt(curl,CURLOPT_WRITEDATA,&response);
     curl_easy_setopt(curl,CURLOPT_FOLLOWLOCATION,follow_redirects);
@@ -33,6 +32,10 @@ void network_client :: setup(){
 
 bool network_client :: fetch_data(){
     
+    url="https://api.binance.com/api/v3/klines?symbol="+symbol+"&interval="+interval+"&limit="+std::to_string(limit);
+
+    curl_easy_setopt(curl,CURLOPT_URL,url.c_str());
+
     response.clear();
     
     result =curl_easy_perform(curl);
@@ -49,4 +52,18 @@ bool network_client :: fetch_data(){
         return true;
     }
     
+}
+
+int network_client :: get_interval_seconds(){
+    int value = std::stoi(interval.substr(0, interval.size() - 1));
+    char unit = interval.back();
+
+    switch(unit)
+    {
+        case 'm': return value * 60;
+        case 'h': return value * 60 * 60;
+        case 'd': return value * 60 * 60 * 24;
+        case 'w': return value * 60 * 60 * 24 * 7;
+        default: return 60;
+    }
 }

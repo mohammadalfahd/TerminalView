@@ -48,13 +48,11 @@ class network_client{
         }
     }
 
-    void make_url(){
-
-        url="https://api.binance.com/api/v3/klines?symbol="+symbol+"&interval="+interval+"&limit="+std::to_string(limit);
-
-    }
+    int get_interval_seconds();
     static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);
     void setup();
     bool fetch_data();
+
+
 };
 
