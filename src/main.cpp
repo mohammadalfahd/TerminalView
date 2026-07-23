@@ -5,6 +5,7 @@
 #include <sstream>
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 #include "../include/candle.h"
 #include "../include/viewport.h"
@@ -33,6 +34,13 @@ int main(){
     macd macd;
     rsi rsi14;
     Renderer renderer;
+    
+    mutex mtx;
+    thread livepolling;
+    thread render;
+
+    network_client httpclient;
+    json_parser json;
 
     while(true){
         cout<<endl<<"1 -> Manual Data Entry"<<endl<<
@@ -83,57 +91,71 @@ int main(){
             datapoint=load_csv(file_address);
         }
         else if(choice=="3"){
-            network_client httpclient;
-
-            httpclient.setup();
-
+            
+            mtx.lock();
+            
+            
             cout<<"Enter Symbol : ";
             cin>>httpclient.symbol;
-
+            
             cout<<"Enter Interval : ";
             cin>>httpclient.interval;
-
+            
+            httpclient.setup();
+            
+            
             bool data_fetch=httpclient.fetch_data();
-            json_parser json;
+            
+                
+                
+                for(int i=0;i<1;i++){
+                    if(datapoint.empty()){
+                        if(data_fetch){
+                            bool json_parse=json.parse_json(httpclient.response);
 
-            while(true){
-                if(datapoint.empty()){
-                    if(data_fetch){
 
-                        bool json_parse=json.parse_json(httpclient.response);
+                            if(json_parse){
+                                json.set_data(datapoint);
+                                
+                                
 
-                        if(json_parse){
-                            datapoint=json.set_data();
+                            }
+
                         }
-
-                    }
-                    else{cerr<<"DATA FETCH FAILEDn\n";}
+                    else{cerr<<"DATA FETCH FAILED\n";}
 
                 }
-                else{
-
+                if(!datapoint.empty()){
+                    livepolling=thread([&](){
+                        cout<<"Polling started\n";
                     httpclient.limit=1;
+                    
+                    while(true){
+                        data_fetch=httpclient.fetch_data();
+                        bool json_parse=json.parse_json(httpclient.response);
+                       
+                        if(json_parse && data_fetch && mtx.try_lock()){
+                            json.set_data(datapoint);    
+                            mtx.unlock();
+                        }
+                         
+                    
+                        std::this_thread::sleep_for(std::chrono::seconds(1));
 
-                       httpclient.fetch_data();
 
-                       bool json_parse=json.parse_json(httpclient.response);
-
-                       if(json_parse){
-                            vector<candle> newcandle=json.set_data();
-
-                            datapoint.push_back(newcandle[0]);
-                       }
+                    }
+                    });
                    
                 }
 
-                int wait_time=httpclient.get_interval_seconds();
+                mtx.unlock(); 
 
-                std::this_thread::sleep_for(std::chrono::seconds(wait_time));
-            }
-
+                }
             
 
+            
         }
+
         else {cout<<endl<<"Data Capture Terminated"<<endl; break;};
     }
     GridConfig CONFIG(visible_region);
@@ -145,51 +167,60 @@ int main(){
     macd.initialise(datapoint);
     rsi14.initialise(datapoint);
 
-    enable_raw_mode();
+    render = thread([&](){
+        
+        enable_raw_mode();
+        
+        while(true){
 
-    while(true){
+                mtx.lock();
+                    system("clear");
+                    cout<<"============= "<<name<<" ================"<<endl;
+                    renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
+                mtx.unlock();
+                char key=get_key();
 
-            
-            system("clear");
-            cout<<"============= "<<name<<" ================"<<endl;
-            renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
+                if(key=='a'){
+                    visible_region.pan(visible_region,datapoint,-1);
+                }
+                if(key=='d'){
+                    visible_region.pan(visible_region,datapoint,1);
+                }
+                if(key=='l'){
+                    visible_region.select_candle(visible_region,1);
+                }
+                if(key=='j'){
+                    visible_region.select_candle(visible_region,-1);
+                }
+                if(key=='s'){
+                    toggle_indicators.sma=!toggle_indicators.sma;
+                }
+                if(key=='e'){
+                    toggle_indicators.ema=!toggle_indicators.ema;
+                }
+                if(key=='v'){
+                    toggle_indicators.volume=!toggle_indicators.volume;
+                }
+                if(key=='m'){
+                    toggle_indicators.macd=!toggle_indicators.macd;
+                }
+                if(key=='r'){
+                    toggle_indicators.rsi=!toggle_indicators.rsi;
+                }
+                if(key=='q'){
+                    break;
+                }
 
-            char key=get_key();
 
-            if(key=='a'){
-                visible_region.pan(visible_region,datapoint,-1);
-            }
-            if(key=='d'){
-                visible_region.pan(visible_region,datapoint,1);
-            }
-            if(key=='l'){
-                visible_region.select_candle(visible_region,1);
-            }
-            if(key=='j'){
-                visible_region.select_candle(visible_region,-1);
-            }
-            if(key=='s'){
-                toggle_indicators.sma=!toggle_indicators.sma;
-            }
-            if(key=='e'){
-                toggle_indicators.ema=!toggle_indicators.ema;
-            }
-            if(key=='v'){
-                toggle_indicators.volume=!toggle_indicators.volume;
-            }
-            if(key=='m'){
-                toggle_indicators.macd=!toggle_indicators.macd;
-            }
-            if(key=='r'){
-                toggle_indicators.rsi=!toggle_indicators.rsi;
-            }
-            if(key=='q'){
-                break;
-            }
-            
-            
-    }
-    disable_raw_mode();
-
+        }
+        
+        disable_raw_mode(); });
+    
+    if(livepolling.joinable())
+        livepolling.join();
+    
+    if(render.joinable())
+        render.join();
+    
     return 0;
 }

@@ -12,15 +12,12 @@ bool json_parser :: parse_json(std::string &response){
         return true;}
 }
 
-vector<candle> json_parser :: set_data(){
+void json_parser :: set_data(vector<candle> &data){
 
-    vector<candle> data;
 
     for(nlohmann::json candle_json:json_data){
         data.push_back(extract_candle(candle_json));
     }
-
-    return data;
 } 
 
 candle json_parser :: extract_candle(nlohmann::json &candle_json){

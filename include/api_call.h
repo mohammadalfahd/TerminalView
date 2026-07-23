@@ -13,21 +13,21 @@ class network_client{
     std::string response;
 
     std::string symbol="BTCUSDT";
-    std::string interval="1h";
+    std::string interval="1m";
     size_t limit=200;
     time_t start_time;
     time_t end_time;
 
     std::string url;
 
-    long timeout=5L;
+    long timeout=10L;
     long follow_redirects=1L;
     std::string user_agent="TerminalView";
     std::string accept_encoding="";
     struct curl_slist* headers=nullptr;
 
     //temp for debug only
-    long verbose=1L;
+    long verbose=0L;
     char errorbuffer[CURL_ERROR_SIZE]={0};
 
     network_client(){
@@ -39,6 +39,12 @@ class network_client{
         }
     }
 
+    
+    int get_interval_seconds();
+    static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);
+    void setup();
+    bool fetch_data();
+    
     ~network_client(){
         if(curl){
             curl_easy_cleanup(curl);
@@ -47,12 +53,6 @@ class network_client{
             curl_slist_free_all(headers);
         }
     }
-
-    int get_interval_seconds();
-    static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);
-    void setup();
-    bool fetch_data();
-
 
 };
 
