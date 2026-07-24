@@ -15,6 +15,7 @@ class ema{
     void initialise(vector<candle> &data,sma &sma20);
     void initialise(vector<double> &data,sma &sma20);
     void update(candle &newcandle);
+    void refresh(candle &newcandle);
     void update(double &val);
-
+    void refresh(double &val);
 };

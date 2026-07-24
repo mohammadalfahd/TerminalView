@@ -12,20 +12,28 @@ bool json_parser :: parse_json(std::string &response){
         return true;}
 }
 
-void json_parser :: set_data(vector<candle> &data){
+bool json_parser :: set_data(vector<candle> &data){
 
+    bool dup_flag=false;
     
     for(nlohmann::json candle_json:json_data){
-        if(data.empty())
+        if(data.empty()){
             data.push_back(extract_candle(candle_json));
-
+            
+        }
         else if(data.back().timestamp==std::to_string(candle_json[0].get<long long>())){
             data.back()=extract_candle(candle_json);
+            dup_flag=true;
         }
-        else{data.push_back(extract_candle(candle_json));}
+        else{
+            data.push_back(extract_candle(candle_json));
+            
+        }
 
     }
+    return dup_flag;
 } 
+
 
 candle json_parser :: extract_candle(nlohmann::json &candle_json){
     candle data_point;

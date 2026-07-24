@@ -15,5 +15,7 @@ class sma{
     void initialise(std::vector<candle> &data);
     void initialise(vector<double> &data);
     void update(candle &newcandle);
+    void refresh(vector<candle> &data);
     void update(double &val);
+    void refresh(double &val);
 };

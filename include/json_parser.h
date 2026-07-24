@@ -10,7 +10,8 @@ class json_parser{
 
     bool parse_json(std::string &response);
 
-    void set_data(vector<candle> &data);
+    bool set_data(vector<candle> &data);
+
     candle extract_candle(nlohmann::json &candle_json);
 
 };

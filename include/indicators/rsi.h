@@ -23,6 +23,7 @@ class rsi{
 
     void initialise(vector<candle> &data);
     void update(candle &newcandle);
+    void refresh(candle &newcandle);
 
     void draw_rsi(GridConfig& config, vector<candle> &data, Viewport& viewport);
 };

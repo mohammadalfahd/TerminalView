@@ -47,3 +47,19 @@ void ema :: update(double &val){
 
     ema_val.push_back(ema);
 }
+
+void ema :: refresh(candle &newcandle){
+    double prev_ema=ema_val[ema_val.size()-2];
+
+    double ema=prev_ema+multiplier*(newcandle.closing_price-prev_ema); 
+
+    ema_val.back()=ema;
+}
+
+void ema :: refresh(double &val){
+    double prev_ema=ema_val[ema_val.size()-2];
+
+    double ema=prev_ema+multiplier*(val-prev_ema); 
+
+    ema_val.back()=ema;
+}

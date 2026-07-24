@@ -59,6 +59,8 @@ void rsi::initialise(vector<candle> &data) {
         
         rsi_val.push_back(100 - (100 / (rs + 1)));
     }
+
+    prev_candle=data.back();
 }
 
 void rsi::update(candle &new_candle) {
@@ -91,6 +93,37 @@ void rsi::update(candle &new_candle) {
 
     rsi_val.push_back(current_rsi);
     prev_candle = new_candle; 
+}
+
+void rsi::refresh(candle &new_candle) {
+
+    double change = new_candle.closing_price - prev_candle.closing_price;
+
+
+    double current_gain = (change > 0) ? change : 0.0;
+    double current_loss = (change < 0) ? (-change) : 0.0;
+
+
+    double temp_avg_gain = ((avg_gain * (period - 1)) + current_gain) / period;
+    double temp_avg_loss = ((avg_loss * (period - 1)) + current_loss) / period;
+
+
+    double rs = 0.0;
+    double current_rsi = 0.0;
+
+    if (temp_avg_loss == 0) {
+        if (temp_avg_gain == 0) {
+            current_rsi = 50.0; 
+        } else {
+            current_rsi = 100.0; 
+        }
+    } else {
+        rs = temp_avg_gain / temp_avg_loss;
+        current_rsi = 100.0 - (100.0 / (1.0 + rs));
+    }
+
+
+    rsi_val.back()=current_rsi; 
 }
 
 void rsi :: draw_rsi(GridConfig& config,vector<candle> &data, Viewport& Viewport){

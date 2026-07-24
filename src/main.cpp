@@ -88,6 +88,11 @@ int main()
             cin >> volume;
 
             datapoint.push_back({timestamp, open_price, high_price, low_price, closing_price, Adj_close, volume});
+
+                sma20.initialise(datapoint);
+                ema20.initialise(datapoint, sma20);
+                macd.initialise(datapoint);
+                rsi14.initialise(datapoint);
         }
         else if (choice == "2")
         {
@@ -101,6 +106,11 @@ int main()
             file_address = "../CSV_files/" + file_name;
 
             datapoint = load_csv(file_address);
+
+                sma20.initialise(datapoint);
+                ema20.initialise(datapoint, sma20);
+                macd.initialise(datapoint);
+                rsi14.initialise(datapoint);
         }
         else if (choice == "3")
         {
@@ -128,6 +138,10 @@ int main()
                         if (json_parse)
                         {
                             json.set_data(datapoint);
+                            sma20.initialise(datapoint);
+                            ema20.initialise(datapoint, sma20);
+                            macd.initialise(datapoint);
+                            rsi14.initialise(datapoint);
                         }
                     }
                     else
@@ -148,10 +162,22 @@ int main()
                        
                         if(json_parse && data_fetch ){
                             lock_guard<mutex> lock(mtx);
-                            json.set_data(datapoint);    
+                            
+                            
+                            
+                            if(!json.set_data(datapoint)){    
+                                sma20.update(datapoint.back());
+                                ema20.update(datapoint.back());
+                                macd.update(datapoint.back());
+                                rsi14.update(datapoint.back());
+                            }
+                            else{
+                                sma20.refresh(datapoint);
+                                ema20.refresh(datapoint.back());
+                                rsi14.refresh(datapoint.back());
+                            }
                             
                         }
-                         
                     
                         std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -172,10 +198,7 @@ int main()
 
     Stock.emplace(name, datapoint);
 
-    sma20.initialise(datapoint);
-    ema20.initialise(datapoint, sma20);
-    macd.initialise(datapoint);
-    rsi14.initialise(datapoint);
+
 
     render = thread([&]()
                     {
