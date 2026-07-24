@@ -8,15 +8,22 @@ bool json_parser :: parse_json(std::string &response){
         return false;
     }
     else{
-        std::cout<<"Parsing successfull\n";
+        //std::cout<<"Parsing successfull\n"; ->Disabled for Finalisation
         return true;}
 }
 
 void json_parser :: set_data(vector<candle> &data){
 
-
+    
     for(nlohmann::json candle_json:json_data){
-        data.push_back(extract_candle(candle_json));
+        if(data.empty())
+            data.push_back(extract_candle(candle_json));
+
+        else if(data.back().timestamp==std::to_string(candle_json[0].get<long long>())){
+            data.back()=extract_candle(candle_json);
+        }
+        else{data.push_back(extract_candle(candle_json));}
+
     }
 } 
 

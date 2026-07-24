@@ -19,13 +19,14 @@
 
 using namespace std;
 
-int main(){
+int main()
+{
 
-    cout<<"Name of Comapny : ";
+    cout << "Name of Comapny : ";
     string name;
-    cin>>name;
-    
-    map<string,vector<candle>> Stock;
+    cin >> name;
+
+    map<string, vector<candle>> Stock;
     vector<candle> datapoint;
     Viewport visible_region;
     Indicators toggle_indicators;
@@ -34,7 +35,7 @@ int main(){
     macd macd;
     rsi rsi14;
     Renderer renderer;
-    
+
     mutex mtx;
     thread livepolling;
     thread render;
@@ -42,16 +43,20 @@ int main(){
     network_client httpclient;
     json_parser json;
 
-    while(true){
-        cout<<endl<<"1 -> Manual Data Entry"<<endl<<
-            "2 -> CSV Import "<<endl<<
-            "3 -> RealTime Candlestick Chart "<<endl<<"Enter anything else to see graph "<<endl;
+    while (true)
+    {
+        cout << endl
+             << "1 -> Manual Data Entry" << endl
+             << "2 -> CSV Import " << endl
+             << "3 -> RealTime Candlestick Chart " << endl
+             << "Enter anything else to see graph " << endl;
 
         string choice;
-        cout<<"Enter choice : ";
-        cin>>choice;
+        cout << "Enter choice : ";
+        cin >> choice;
 
-        if(choice=="1"){
+        if (choice == "1")
+        {
             string timestamp;
             double open_price;
             double high_price;
@@ -60,73 +65,80 @@ int main(){
             double Adj_close;
             double volume;
 
-            cout<<endl<<"Enter Year : ";
-            cin>>timestamp;
-            cout<<endl<<"Enter Open Price : ";
-            cin>>open_price;
-            cout<<endl<<"Enter high price : ";
-            cin>>high_price;
-            cout<<endl<<"Enter low price : ";
-            cin>>low_price;
-            cout<<endl<<"Enter Closing price : ";
-            cin>>closing_price;
-            cout<<endl<<"Enter Adjacent Close : ";
-            cin>>Adj_close;
-            cout<<endl<<"Enter Volume : ";
-            cin>>volume;
+            cout << endl
+                 << "Enter Year : ";
+            cin >> timestamp;
+            cout << endl
+                 << "Enter Open Price : ";
+            cin >> open_price;
+            cout << endl
+                 << "Enter high price : ";
+            cin >> high_price;
+            cout << endl
+                 << "Enter low price : ";
+            cin >> low_price;
+            cout << endl
+                 << "Enter Closing price : ";
+            cin >> closing_price;
+            cout << endl
+                 << "Enter Adjacent Close : ";
+            cin >> Adj_close;
+            cout << endl
+                 << "Enter Volume : ";
+            cin >> volume;
 
-            datapoint.push_back({timestamp,open_price,high_price,low_price,closing_price,Adj_close,volume});
-
+            datapoint.push_back({timestamp, open_price, high_price, low_price, closing_price, Adj_close, volume});
         }
-        else if(choice=="2"){
+        else if (choice == "2")
+        {
 
             string file_address;
             string file_name;
 
-            cout<<"ENTER FILE NAME : ";
-            cin>>file_name;
+            cout << "ENTER FILE NAME : ";
+            cin >> file_name;
 
-            file_address="../CSV_files/"+file_name;
+            file_address = "../CSV_files/" + file_name;
 
-            datapoint=load_csv(file_address);
+            datapoint = load_csv(file_address);
         }
-        else if(choice=="3"){
-            
-            mtx.lock();
-            
-            
-            cout<<"Enter Symbol : ";
-            cin>>httpclient.symbol;
-            
-            cout<<"Enter Interval : ";
-            cin>>httpclient.interval;
-            
+        else if (choice == "3")
+        {
+
+            lock_guard<mutex> lock(mtx);
+
+            cout << "Enter Symbol : ";
+            cin >> httpclient.symbol;
+
+            cout << "Enter Interval : ";
+            cin >> httpclient.interval;
+
             httpclient.setup();
-            
-            
-            bool data_fetch=httpclient.fetch_data();
-            
-                
-                
-                for(int i=0;i<1;i++){
-                    if(datapoint.empty()){
-                        if(data_fetch){
-                            bool json_parse=json.parse_json(httpclient.response);
 
+            bool data_fetch = httpclient.fetch_data();
 
-                            if(json_parse){
-                                json.set_data(datapoint);
-                                
-                                
+            for (int i = 0; i < 1; i++)
+            {
+                if (datapoint.empty())
+                {
+                    if (data_fetch)
+                    {
+                        bool json_parse = json.parse_json(httpclient.response);
 
-                            }
-
+                        if (json_parse)
+                        {
+                            json.set_data(datapoint);
                         }
-                    else{cerr<<"DATA FETCH FAILED\n";}
-
+                    }
+                    else
+                    {
+                        cerr << "DATA FETCH FAILED\n";
+                    }
                 }
-                if(!datapoint.empty()){
-                    livepolling=thread([&](){
+                if (!datapoint.empty())
+                {
+                    livepolling = thread([&]()
+                                         {
                         cout<<"Polling started\n";
                     httpclient.limit=1;
                     
@@ -134,52 +146,55 @@ int main(){
                         data_fetch=httpclient.fetch_data();
                         bool json_parse=json.parse_json(httpclient.response);
                        
-                        if(json_parse && data_fetch && mtx.try_lock()){
+                        if(json_parse && data_fetch ){
+                            lock_guard<mutex> lock(mtx);
                             json.set_data(datapoint);    
-                            mtx.unlock();
+                            
                         }
                          
                     
                         std::this_thread::sleep_for(std::chrono::seconds(1));
 
 
-                    }
-                    });
-                   
+                    } });
                 }
-
-                mtx.unlock(); 
-
-                }
-            
-
-            
+            }
         }
 
-        else {cout<<endl<<"Data Capture Terminated"<<endl; break;};
+        else
+        {
+            cout << endl
+                 << "Data Capture Terminated" << endl;
+            break;
+        };
     }
     GridConfig CONFIG(visible_region);
 
-    Stock.emplace(name,datapoint);
+    Stock.emplace(name, datapoint);
 
     sma20.initialise(datapoint);
-    ema20.initialise(datapoint,sma20);
+    ema20.initialise(datapoint, sma20);
     macd.initialise(datapoint);
     rsi14.initialise(datapoint);
 
-    render = thread([&](){
+    render = thread([&]()
+                    {
         
         enable_raw_mode();
         
         while(true){
 
-                mtx.lock();
-                    system("clear");
-                    cout<<"============= "<<name<<" ================"<<endl;
-                    renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
-                mtx.unlock();
+                {   
+                lock_guard<mutex> lock(mtx);
+                system("clear");
+                cout<<"============= "<<name<<" ================"<<endl;
+                renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
+                }
+                
                 char key=get_key();
-
+                
+                if(key==' ')
+                    continue;
                 if(key=='a'){
                     visible_region.pan(visible_region,datapoint,-1);
                 }
@@ -208,19 +223,19 @@ int main(){
                     toggle_indicators.rsi=!toggle_indicators.rsi;
                 }
                 if(key=='q'){
-                    break;
+                    return 0;
                 }
-
+                this_thread::sleep_for(chrono::milliseconds(33));
 
         }
         
         disable_raw_mode(); });
-    
-    if(livepolling.joinable())
+
+    if (livepolling.joinable())
         livepolling.join();
-    
-    if(render.joinable())
+
+    if (render.joinable())
         render.join();
-    
+
     return 0;
 }
