@@ -88,6 +88,7 @@ int main()
             cin >> volume;
 
             datapoint.push_back({timestamp, open_price, high_price, low_price, closing_price, Adj_close, volume});
+            visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
 
                 sma20.initialise(datapoint);
                 ema20.initialise(datapoint, sma20);
@@ -106,7 +107,7 @@ int main()
             file_address = "../CSV_files/" + file_name;
 
             datapoint = load_csv(file_address);
-
+            visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
                 sma20.initialise(datapoint);
                 ema20.initialise(datapoint, sma20);
                 macd.initialise(datapoint);
@@ -138,6 +139,7 @@ int main()
                         if (json_parse)
                         {
                             json.set_data(datapoint);
+                            visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
                             sma20.initialise(datapoint);
                             ema20.initialise(datapoint, sma20);
                             macd.initialise(datapoint);
@@ -165,7 +167,8 @@ int main()
                             
                             
                             
-                            if(!json.set_data(datapoint)){    
+                            if(!json.set_data(datapoint)){  
+                                visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);  
                                 sma20.update(datapoint.back());
                                 ema20.update(datapoint.back());
                                 macd.update(datapoint.back());
