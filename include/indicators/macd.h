@@ -20,6 +20,7 @@ class macd{
 
     void initialise(vector<candle> &data);
     void update(candle &newcandle);
+    void refresh(candle &newcandle);
 
     double get_max_macd(Viewport &Viewport);
     double get_min_macd(Viewport &Viewport);

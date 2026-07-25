@@ -178,6 +178,7 @@ int main()
                                 sma20.refresh(datapoint);
                                 ema20.refresh(datapoint.back());
                                 rsi14.refresh(datapoint.back());
+                                macd.refresh(datapoint.back());
                             }
                             
                         }

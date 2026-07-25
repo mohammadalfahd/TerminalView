@@ -81,6 +81,18 @@ void macd :: update(candle &newcandle){
 
 }
 
+void macd :: refresh(candle &newcandle){
+    ema12.refresh(newcandle);
+    ema26.refresh(newcandle);
+
+    macd_val.back()=ema12.ema_val.back()-ema26.ema_val.back();
+
+    ema9.refresh(macd_val.back());
+    signal.back()=ema9.ema_val.back();
+
+    histogram.back()=macd_val.back()-signal.back();
+}
+
 void macd :: draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
 
     vector<vector<string>> macd_grid(config.total_height,vector<string>(config.total_width," "));
