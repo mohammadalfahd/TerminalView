@@ -1,7 +1,9 @@
-#include "../include/input.h"
+#include "../include/terminal.h"
 #include <termios.h>
 #include <unistd.h>
 #include <cstdio>
+#include <sys/ioctl.h>
+
 
 static struct termios original_terminal;
 
@@ -20,7 +22,6 @@ void enable_raw_mode(){
 void disable_raw_mode(){
     tcsetattr(STDIN_FILENO, TCSAFLUSH, &original_terminal);
 }
-#include <unistd.h>
 
 char get_key(){
     char c;
@@ -31,4 +32,14 @@ char get_key(){
         return c;
 
     return '\0';
+}
+
+std::pair<int,int> get_terminal_dimension(){
+    struct winsize w;
+    ioctl(STDOUT_FILENO,TIOCGWINSZ,&w);
+
+    int rows=w.ws_row;
+    int cols=w.ws_col;
+
+    return {rows,cols};
 }

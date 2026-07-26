@@ -9,7 +9,7 @@ class GridConfig{
     int x_label_height=3;
     int spacing=2;
     int candle_count;
-    int chart_height=20;
+    int chart_height;
     int chart_width;
 
 
@@ -21,11 +21,11 @@ class GridConfig{
     GridConfig(){}
     
     GridConfig(Viewport &visible_region){
-
+        chart_height=visible_region.viewport_height-1-x_label_height;
         candle_count=visible_region.candle_count;
         chart_width=spacing*candle_count;
         total_width=chart_width+y_label_width+3;
-        total_height=chart_height+x_label_height+1;
+        total_height=visible_region.viewport_height;
 
     }
 };

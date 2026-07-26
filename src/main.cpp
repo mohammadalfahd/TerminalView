@@ -12,7 +12,7 @@
 #include "../include/viewport.h"
 #include "../include/grid.h"
 #include "../include/csv_loader.h"
-#include "../include/input.h"
+#include "../include/terminal.h"
 #include "../include/indicators.h"
 #include "../include/renderer.h"
 #include "../include/api_call.h"
