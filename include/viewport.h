@@ -13,12 +13,13 @@ struct Viewport{
     int viewport_height=get_terminal_dimension().first;
     int viewport_width=get_terminal_dimension().second;
 
-    int candle_count=45;
+    int candle_count;
 
-    int selected_candle=44;
+    int selected_candle;
 
 
-    void pan(Viewport &Viewport,vector<candle> &data,int direction);
-    void select_candle(Viewport &viewport,int direction);
+    void pan(vector<candle> &data,int direction);
+    void select_candle(int direction);
+    void update_layout();
 };
 

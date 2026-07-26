@@ -30,6 +30,7 @@ int main()
     map<string, vector<candle>> Stock;
     vector<candle> datapoint;
     Viewport visible_region;
+        visible_region.update_layout();
     Indicators toggle_indicators;
     sma sma20;
     ema ema20;
@@ -111,6 +112,8 @@ int main()
 
             datapoint = load_csv(file_address);
             visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
+            visible_region.selected_candle =min(visible_region.selected_candle,static_cast<int>(datapoint.size()) - visible_region.first_visible_candle - 1);
+                
                 sma20.initialise(datapoint);
                 ema20.initialise(datapoint, sma20);
                 macd.initialise(datapoint);
@@ -142,7 +145,9 @@ int main()
                         if (json_parse)
                         {
                             json.set_data(datapoint);
+                            
                             visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
+                            visible_region.selected_candle =min(visible_region.selected_candle,static_cast<int>(datapoint.size()) - visible_region.first_visible_candle - 1);
                             sma20.initialise(datapoint);
                             ema20.initialise(datapoint, sma20);
                             macd.initialise(datapoint);
@@ -162,7 +167,7 @@ int main()
                     httpclient.limit=1;
                     
                     while(running){
-                        data_fetch=httpclient.fetch_data();
+                        bool data_fetch=httpclient.fetch_data();
                         bool json_parse=json.parse_json(httpclient.response);
                        
                         if(json_parse && data_fetch ){
@@ -202,6 +207,7 @@ int main()
         };
     }
     GridConfig CONFIG(visible_region);
+    CONFIG.update_grid_config(visible_region);
 
     Stock.emplace(name, datapoint);
 
@@ -216,6 +222,9 @@ int main()
 
                 {   
                 lock_guard<mutex> lock(mtx);
+                visible_region.update_layout();
+                visible_region.selected_candle =min(visible_region.selected_candle,static_cast<int>(datapoint.size()) - visible_region.first_visible_candle - 1);
+                CONFIG.update_grid_config(visible_region);
                 system("clear");
                 cout<<"============= "<<name<<" ================"<<endl;
                 renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
@@ -226,16 +235,16 @@ int main()
                 if(key==' ')
                     continue;
                 if(key=='a'){
-                    visible_region.pan(visible_region,datapoint,-1);
+                    visible_region.pan(datapoint,-1);
                 }
                 if(key=='d'){
-                    visible_region.pan(visible_region,datapoint,1);
+                    visible_region.pan(datapoint,1);
                 }
                 if(key=='l'){
-                    visible_region.select_candle(visible_region,1);
+                    visible_region.select_candle(1);
                 }
                 if(key=='j'){
-                    visible_region.select_candle(visible_region,-1);
+                    visible_region.select_candle(-1);
                 }
                 if(key=='s'){
                     toggle_indicators.sma=!toggle_indicators.sma;

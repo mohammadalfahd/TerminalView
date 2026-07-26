@@ -6,7 +6,7 @@
 class GridConfig{
     public: 
     int y_label_width=1;
-    int x_label_height=3;
+    int x_label_height=2;
     int spacing=2;
     int candle_count;
     int chart_height;
@@ -21,13 +21,15 @@ class GridConfig{
     GridConfig(){}
     
     GridConfig(Viewport &visible_region){
-        chart_height=visible_region.viewport_height-1-x_label_height;
+        chart_height=visible_region.viewport_height-5-x_label_height;
         candle_count=visible_region.candle_count;
         chart_width=spacing*candle_count;
         total_width=chart_width+y_label_width+3;
         total_height=visible_region.viewport_height;
 
     }
+
+    void update_grid_config(Viewport &visible_region);
 };
 
 int scale(GridConfig &config,double val,double highest_val,double lowest_val);
