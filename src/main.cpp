@@ -6,6 +6,7 @@
 #include <chrono>
 #include <thread>
 #include <mutex>
+#include <atomic>
 
 #include "../include/candle.h"
 #include "../include/viewport.h"
@@ -43,7 +44,9 @@ int main()
     network_client httpclient;
     json_parser json;
 
-    while (true)
+    atomic<bool> running=true;
+
+    while (running)
     {
         cout << endl
              << "1 -> Manual Data Entry" << endl
@@ -158,7 +161,7 @@ int main()
                         cout<<"Polling started\n";
                     httpclient.limit=1;
                     
-                    while(true){
+                    while(running){
                         data_fetch=httpclient.fetch_data();
                         bool json_parse=json.parse_json(httpclient.response);
                        
@@ -209,7 +212,7 @@ int main()
         
         enable_raw_mode();
         
-        while(true){
+        while(running){
 
                 {   
                 lock_guard<mutex> lock(mtx);
@@ -250,7 +253,8 @@ int main()
                     toggle_indicators.rsi=!toggle_indicators.rsi;
                 }
                 if(key=='q'){
-                    return 0;
+                    running=false;
+                    break;
                 }
                 this_thread::sleep_for(chrono::milliseconds(33));
 
