@@ -28,24 +28,25 @@ int main()
     cin >> name;
 
     map<string, vector<candle>> Stock;
-    vector<candle> datapoint;
-    Viewport visible_region;
+    static vector<candle> datapoint;
+    static Viewport visible_region;
         visible_region.update_layout();
-    Indicators toggle_indicators;
-    sma sma20;
-    ema ema20;
-    macd macd;
-    rsi rsi14;
-    Renderer renderer;
+    static Indicators toggle_indicators;
+    static sma sma20;
+    static ema ema20;
+    static macd macd;
+    static rsi rsi14;
+    static Renderer renderer;
 
     mutex mtx;
     thread livepolling;
     thread render;
 
-    network_client httpclient;
-    json_parser json;
+    static network_client httpclient;
+    static json_parser json;
 
     atomic<bool> running=true;
+    atomic<bool> polling=false;
 
     while (running)
     {
@@ -127,9 +128,7 @@ int main()
             cout << "Enter Symbol : ";
             cin >> httpclient.symbol;
 
-            cout << "Enter Interval : ";
-            cin >> httpclient.interval;
-
+            httpclient.limit=300;
             httpclient.setup();
 
             bool data_fetch = httpclient.fetch_data();
@@ -152,6 +151,8 @@ int main()
                             ema20.initialise(datapoint, sma20);
                             macd.initialise(datapoint);
                             rsi14.initialise(datapoint);
+
+                            polling=true;
                         }
                     }
                     else
@@ -159,14 +160,19 @@ int main()
                         cerr << "DATA FETCH FAILED\n";
                     }
                 }
-                if (!datapoint.empty())
-                {
+                if (!datapoint.empty() && polling)
+                {   
                     livepolling = thread([&]()
                                          {
-                        cout<<"Polling started\n";
+                    cout<<"\nPolling started\n";
                     httpclient.limit=1;
                     
                     while(running){
+
+                        if (!polling) {
+                            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                            continue;
+                        }
                         bool data_fetch=httpclient.fetch_data();
                         bool json_parse=json.parse_json(httpclient.response);
                        
@@ -226,6 +232,7 @@ int main()
                 visible_region.selected_candle =min(visible_region.selected_candle,static_cast<int>(datapoint.size()) - visible_region.first_visible_candle - 1);
                 CONFIG.update_grid_config(visible_region);
                 system("clear");
+                if(datapoint.empty()){cout<<"Fetching Data"<<endl; continue;}
                 cout<<"============= "<<name<<" ================"<<endl;
                 renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
                 }
@@ -261,6 +268,55 @@ int main()
                 if(key=='r'){
                     toggle_indicators.rsi=!toggle_indicators.rsi;
                 }
+                if(key=='i'){
+                    std::lock_guard<std::mutex> lock(mtx);
+                    polling =false;
+                    datapoint.clear();
+
+                    httpclient.switch_timeframe(1);
+
+                    httpclient.limit = 200;
+                    httpclient.fetch_data();
+                    json.parse_json(httpclient.response);
+                    json.set_data(datapoint);
+
+                    visible_region.first_visible_candle =std::max(0, (int)datapoint.size() - visible_region.candle_count);
+                    visible_region.selected_candle =std::max(0, visible_region.candle_count - 1);
+
+                    sma20.initialise(datapoint);
+                    ema20.initialise(datapoint, sma20);
+                    macd.initialise(datapoint);
+                    rsi14.initialise(datapoint);
+
+                    polling=true;
+                    httpclient.limit = 1;
+
+                }
+                if(key=='k'){
+                    std::lock_guard<std::mutex> lock(mtx);
+                    polling =false;
+                    datapoint.clear();
+
+                    httpclient.switch_timeframe(-1);
+
+                    httpclient.limit = 200;
+                    httpclient.fetch_data();
+                    json.parse_json(httpclient.response);
+                    json.set_data(datapoint);
+
+                    visible_region.first_visible_candle =
+                        std::max(0, (int)datapoint.size() - visible_region.candle_count);
+                    visible_region.selected_candle =
+                        std::max(0, visible_region.candle_count - 1);
+
+                    sma20.initialise(datapoint);
+                    ema20.initialise(datapoint, sma20);
+                    macd.initialise(datapoint);
+                    rsi14.initialise(datapoint);
+
+                    polling=true;
+                    httpclient.limit = 1;
+                }
                 if(key=='q'){
                     running=false;
                     break;
@@ -268,7 +324,7 @@ int main()
                 this_thread::sleep_for(chrono::milliseconds(33));
 
         }
-        
+
         disable_raw_mode(); });
 
     if (livepolling.joinable())

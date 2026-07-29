@@ -3,6 +3,8 @@
 #include <iostream>
 #include <string>
 #include <curl/curl.h>
+#include <array>
+#include <mutex>
 
 class network_client{
     public:
@@ -13,17 +15,21 @@ class network_client{
     std::string response;
 
     std::string symbol="BTCUSDT";
-    std::string interval="1m";
+    const std::array<std::string,8> timeframe_array={"1s","1m","3m","5m","15m","30m","1h","1d"};
+    int timeframe_tracker=3;
+
     size_t limit=200;
     time_t start_time;
     time_t end_time;
 
+
     std::string url;
 
-    long timeout=10L;
-    long follow_redirects=1L;
-    std::string user_agent="TerminalView";
-    std::string accept_encoding="";
+    std::mutex curl_mtx;
+    const long timeout=10L;
+    const long follow_redirects=1L;
+    const std::string user_agent="TerminalView";
+    const std::string accept_encoding="";
     struct curl_slist* headers=nullptr;
 
     //temp for debug only
@@ -40,7 +46,7 @@ class network_client{
     }
 
     
-    int get_interval_seconds();
+    void switch_timeframe(int diretion);
     static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);
     void setup();
     bool fetch_data();
