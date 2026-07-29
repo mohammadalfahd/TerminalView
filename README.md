@@ -57,6 +57,7 @@ Render historical and live financial charts directly inside your terminal.
 ## ⚡ Live Market Data
 
 * Binance REST API integration
+* Multiple TimeFrames 
 * Automatic live polling
 * Live candle refresh
 * Automatic new candle detection
@@ -133,18 +134,20 @@ g++ -I../include ../src/*.cpp -lcurl -pthread -o TerminalView
 
 # 🎮 Controls
 
-| Key   | Action                 |
-| ----- | ---------------------- |
-| **A** | Pan chart left         |
-| **D** | Pan chart right        |
-| **J** | Select previous candle |
-| **L** | Select next candle     |
-| **S** | Toggle SMA             |
-| **E** | Toggle EMA             |
-| **V** | Toggle Volume          |
-| **M** | Toggle MACD            |
-| **R** | Toggle RSI             |
-| **Q** | Quit                   |
+| Key   | Action                   |
+| ----- | ----------------------   |
+| **A** | Pan chart left           |
+| **D** | Pan chart right          |
+| **J** | Select previous candle   |
+| **L** | Select next candle       |
+| **S** | Toggle SMA               |
+| **E** | Toggle EMA               |
+| **V** | Toggle Volume            |
+| **M** | Toggle MACD              |
+| **R** | Toggle RSI               |
+| **I** | Move to Lower Timeframe  |
+| **K** | Move To Higher Timeframe |
+| **Q** | Quit                     |
 
 ---
 
@@ -271,7 +274,7 @@ Close = 105
 * [x] Volume Histogram
 * [ ] WebSocket Streaming
 * [ ] Bollinger Bands
-* [ ] Multiple Timeframes
+* [x] Multiple Timeframes
 * [ ] Performance Profiling
 * [ ] Configuration System
 * [ ] Cross-platform Terminal Support
