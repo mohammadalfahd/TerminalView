@@ -1,8 +1,8 @@
 #pragma once
 
 #include <vector>
-#include "../grid.h"
-#include "../candle.h"
+#include "../chart/grid.h"
+#include "../data/candle.h"
 
 void draw_volume(
     GridConfig &grid,

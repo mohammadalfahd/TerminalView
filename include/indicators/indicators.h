@@ -4,12 +4,12 @@
 #include <vector>
 #include <iostream>
 
-#include "candle.h"
-#include "indicators/volume.h"
-#include "indicators/macd.h"
-#include "indicators/rsi.h"
-#include "indicators/sma.h"
-#include "indicators/ema.h"
+#include "../data/candle.h"
+#include "volume.h"
+#include "macd.h"
+#include "rsi.h"
+#include "sma.h"
+#include "ema.h"
 
 using namespace std;
 class Indicators

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../candle.h"
+#include "../data/candle.h"
 #include "sma.h"
 
 

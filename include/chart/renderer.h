@@ -5,7 +5,7 @@
 #include "candle.h"
 #include "viewport.h"
 #include "grid.h"
-#include "indicators.h"
+#include "../indicators/indicators.h"
 
 
 using namespace std;

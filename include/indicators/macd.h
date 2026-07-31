@@ -2,8 +2,8 @@
 
 
 #include <vector>
-#include "../grid.h"
-#include "../candle.h"
+#include "../chart/grid.h"
+#include "../data/candle.h"
 #include "ema.h"
 
 class macd{
