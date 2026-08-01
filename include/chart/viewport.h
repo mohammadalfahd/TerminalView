@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../terminal/terminal.h"
+#include "terminal/terminal.h"
 #include <vector>
 using namespace std;
 

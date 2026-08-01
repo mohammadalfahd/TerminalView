@@ -1,4 +1,4 @@
-#include "../include/indicators/rsi.h"
+#include "indicators/rsi.h"
 #include <cmath>
 void rsi::initialise(vector<candle> &data) {
 

@@ -1,4 +1,4 @@
-#include "../include/indicators/ema.h"
+#include "indicators/ema.h"
 #include <cmath>
 void ema :: initialise(vector<double> &data,sma &sma20){
 

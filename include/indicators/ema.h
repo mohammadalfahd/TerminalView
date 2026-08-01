@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../data/candle.h"
-#include "sma.h"
+#include "data/candle.h"
+#include "indicators/sma.h"
 
 
 class ema{

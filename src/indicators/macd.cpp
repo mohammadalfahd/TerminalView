@@ -1,4 +1,4 @@
-#include "../include/indicators/macd.h"
+#include "indicators/macd.h"
 #include <cmath>
 
 double macd :: get_max_macd(Viewport &Viewport){

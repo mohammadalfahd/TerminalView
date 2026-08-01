@@ -8,15 +8,8 @@
 #include <mutex>
 #include <atomic>
 
-#include "../include/candle.h"
-#include "../include/viewport.h"
-#include "../include/grid.h"
-#include "../include/csv_loader.h"
-#include "../include/terminal.h"
-#include "../include/indicators.h"
-#include "../include/renderer.h"
-#include "../include/api_call.h"
-#include "../include/json_parser.h"
+#include "application/app_state.h"
+#include "chart/renderer.h"
 
 using namespace std;
 
@@ -28,27 +21,12 @@ int main()
     cin >> name;
 
     map<string, vector<candle>> Stock;
-    static vector<candle> datapoint;
-    static Viewport visible_region;
-        visible_region.update_layout();
-    static Indicators toggle_indicators;
-    static sma sma20;
-    static ema ema20;
-    static macd macd;
-    static rsi rsi14;
-    static Renderer renderer;
+    app_state appstate;
+    std::thread livepolling;
+    std::thread render;
+    Renderer renderer;
 
-    mutex mtx;
-    thread livepolling;
-    thread render;
-
-    static network_client httpclient;
-    static json_parser json;
-
-    atomic<bool> running=true;
-    atomic<bool> polling=false;
-
-    while (running)
+    while (appstate.running)
     {
         cout << endl
              << "1 -> Manual Data Entry" << endl
@@ -92,13 +70,13 @@ int main()
                  << "Enter Volume : ";
             cin >> volume;
 
-            datapoint.push_back({timestamp, open_price, high_price, low_price, closing_price, Adj_close, volume});
-            visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
+            appstate.datapoint.push_back({timestamp, open_price, high_price, low_price, closing_price, Adj_close, volume});
+            appstate.viewport.first_visible_candle=max(0, static_cast<int>(appstate.datapoint.size()) - appstate.viewport.candle_count);
 
-                sma20.initialise(datapoint);
-                ema20.initialise(datapoint, sma20);
-                macd.initialise(datapoint);
-                rsi14.initialise(datapoint);
+                appstate.sma20.initialise(appstate.datapoint);
+                appstate.ema20.initialise(appstate.datapoint, appstate.sma20);
+                appstate.macd_line.initialise(appstate.datapoint);
+                appstate.rsi14.initialise(appstate.datapoint);
         }
         else if (choice == "2")
         {
@@ -111,48 +89,48 @@ int main()
 
             file_address = "../CSV_files/" + file_name;
 
-            datapoint = load_csv(file_address);
-            visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
-            visible_region.selected_candle =min(visible_region.selected_candle,static_cast<int>(datapoint.size()) - visible_region.first_visible_candle - 1);
+            appstate.datapoint = load_csv(file_address);
+            appstate.viewport.first_visible_candle=max(0, static_cast<int>(appstate.datapoint.size()) - appstate.viewport.candle_count);
+            appstate.viewport.selected_candle =min(appstate.viewport.selected_candle,static_cast<int>(appstate.datapoint.size()) - appstate.viewport.first_visible_candle - 1);
                 
-                sma20.initialise(datapoint);
-                ema20.initialise(datapoint, sma20);
-                macd.initialise(datapoint);
-                rsi14.initialise(datapoint);
+                appstate.sma20.initialise(appstate.datapoint);
+                appstate.ema20.initialise(appstate.datapoint, appstate.sma20);
+                appstate.macd_line.initialise(appstate.datapoint);
+                appstate.rsi14.initialise(appstate.datapoint);
         }
         else if (choice == "3")
         {
 
-            lock_guard<mutex> lock(mtx);
+            lock_guard<mutex> lock(appstate.mtx);
 
             cout << "Enter Symbol : ";
-            cin >> httpclient.symbol;
+            cin >> appstate.httpclient.symbol;
 
-            httpclient.limit=300;
-            httpclient.setup();
+            appstate.httpclient.limit=300;
+            appstate.httpclient.setup();
 
-            bool data_fetch = httpclient.fetch_data();
+            bool data_fetch = appstate.httpclient.fetch_data();
 
             for (int i = 0; i < 1; i++)
             {
-                if (datapoint.empty())
+                if (appstate.datapoint.empty())
                 {
                     if (data_fetch)
                     {
-                        bool json_parse = json.parse_json(httpclient.response);
+                        bool json_parse = appstate.json.parse_json(appstate.httpclient.response);
 
                         if (json_parse)
                         {
-                            json.set_data(datapoint);
+                            appstate.json.set_data(appstate.datapoint);
                             
-                            visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);
-                            visible_region.selected_candle =min(visible_region.selected_candle,static_cast<int>(datapoint.size()) - visible_region.first_visible_candle - 1);
-                            sma20.initialise(datapoint);
-                            ema20.initialise(datapoint, sma20);
-                            macd.initialise(datapoint);
-                            rsi14.initialise(datapoint);
+                            appstate.viewport.first_visible_candle=max(0, static_cast<int>(appstate.datapoint.size()) - appstate.viewport.candle_count);
+                            appstate.viewport.selected_candle =min(appstate.viewport.selected_candle,static_cast<int>(appstate.datapoint.size()) - appstate.viewport.first_visible_candle - 1);
+                            appstate.sma20.initialise(appstate.datapoint);
+                            appstate.ema20.initialise(appstate.datapoint, appstate.sma20);
+                            appstate.macd_line.initialise(appstate.datapoint);
+                            appstate.rsi14.initialise(appstate.datapoint);
 
-                            polling=true;
+                            appstate.polling=true;
                         }
                     }
                     else
@@ -160,39 +138,39 @@ int main()
                         cerr << "DATA FETCH FAILED\n";
                     }
                 }
-                if (!datapoint.empty() && polling)
+                if (!appstate.datapoint.empty() && appstate.polling)
                 {   
                     livepolling = thread([&]()
                                          {
-                    cout<<"\nPolling started\n";
-                    httpclient.limit=1;
+                    cout<<"\nappstate.Polling started\n";
+                    appstate.httpclient.limit=1;
                     
-                    while(running){
+                    while(appstate.running){
 
-                        if (!polling) {
+                        if (!appstate.polling) {
                             std::this_thread::sleep_for(std::chrono::milliseconds(50));
                             continue;
                         }
-                        bool data_fetch=httpclient.fetch_data();
-                        bool json_parse=json.parse_json(httpclient.response);
+                        bool data_fetch=appstate.httpclient.fetch_data();
+                        bool json_parse=appstate.json.parse_json(appstate.httpclient.response);
                        
                         if(json_parse && data_fetch ){
-                            lock_guard<mutex> lock(mtx);
+                            lock_guard<mutex> lock(appstate.mtx);
                             
                             
                             
-                            if(!json.set_data(datapoint)){  
-                                visible_region.first_visible_candle=max(0, static_cast<int>(datapoint.size()) - visible_region.candle_count);  
-                                sma20.update(datapoint.back());
-                                ema20.update(datapoint.back());
-                                macd.update(datapoint.back());
-                                rsi14.update(datapoint.back());
+                            if(!appstate.json.set_data(appstate.datapoint)){  
+                                appstate.viewport.first_visible_candle=max(0, static_cast<int>(appstate.datapoint.size()) - appstate.viewport.candle_count);  
+                                appstate.sma20.update(appstate.datapoint.back());
+                                appstate.ema20.update(appstate.datapoint.back());
+                                appstate.macd_line.update(appstate.datapoint.back());
+                                appstate.rsi14.update(appstate.datapoint.back());
                             }
                             else{
-                                sma20.refresh(datapoint);
-                                ema20.refresh(datapoint.back());
-                                rsi14.refresh(datapoint.back());
-                                macd.refresh(datapoint.back());
+                                appstate.sma20.refresh(appstate.datapoint);
+                                appstate.ema20.refresh(appstate.datapoint.back());
+                                appstate.rsi14.refresh(appstate.datapoint.back());
+                                appstate.macd_line.refresh(appstate.datapoint.back());
                             }
                             
                         }
@@ -212,10 +190,10 @@ int main()
             break;
         };
     }
-    GridConfig CONFIG(visible_region);
-    CONFIG.update_grid_config(visible_region);
+    GridConfig CONFIG(appstate.viewport);
+    CONFIG.update_grid_config(appstate.viewport);
 
-    Stock.emplace(name, datapoint);
+    Stock.emplace(name, appstate.datapoint);
 
 
 
@@ -224,17 +202,17 @@ int main()
         
         enable_raw_mode();
         
-        while(running){
+        while(appstate.running){
 
                 {   
-                lock_guard<mutex> lock(mtx);
-                visible_region.update_layout();
-                visible_region.selected_candle =min(visible_region.selected_candle,static_cast<int>(datapoint.size()) - visible_region.first_visible_candle - 1);
-                CONFIG.update_grid_config(visible_region);
+                lock_guard<mutex> lock(appstate.mtx);
+                appstate.viewport.update_layout();
+                appstate.viewport.selected_candle =min(appstate.viewport.selected_candle,static_cast<int>(appstate.datapoint.size()) - appstate.viewport.first_visible_candle - 1);
+                CONFIG.update_grid_config(appstate.viewport);
                 system("clear");
-                if(datapoint.empty()){cout<<"Fetching Data"<<endl; continue;}
+                if(appstate.datapoint.empty()){cout<<"Fetching Data"<<endl; continue;}
                 cout<<"============= "<<name<<" ================"<<endl;
-                renderer.render(datapoint,CONFIG,visible_region,toggle_indicators,sma20,ema20,macd,rsi14);
+                renderer.render(appstate.datapoint,CONFIG,appstate.viewport,appstate.toggles,appstate.sma20,appstate.ema20,appstate.macd_line,appstate.rsi14);
                 }
                 
                 char key=get_key();
@@ -242,83 +220,83 @@ int main()
                 if(key==' ')
                     continue;
                 if(key=='a'){
-                    visible_region.pan(datapoint,-1);
+                    appstate.viewport.pan(appstate.datapoint,-1);
                 }
                 if(key=='d'){
-                    visible_region.pan(datapoint,1);
+                    appstate.viewport.pan(appstate.datapoint,1);
                 }
                 if(key=='l'){
-                    visible_region.select_candle(1);
+                    appstate.viewport.select_candle(1);
                 }
                 if(key=='j'){
-                    visible_region.select_candle(-1);
+                    appstate.viewport.select_candle(-1);
                 }
                 if(key=='s'){
-                    toggle_indicators.sma=!toggle_indicators.sma;
+                    appstate.toggles.sma=!appstate.toggles.sma;
                 }
                 if(key=='e'){
-                    toggle_indicators.ema=!toggle_indicators.ema;
+                    appstate.toggles.ema=!appstate.toggles.ema;
                 }
                 if(key=='v'){
-                    toggle_indicators.volume=!toggle_indicators.volume;
+                    appstate.toggles.volume=!appstate.toggles.volume;
                 }
                 if(key=='m'){
-                    toggle_indicators.macd=!toggle_indicators.macd;
+                    appstate.toggles.macd=!appstate.toggles.macd;
                 }
                 if(key=='r'){
-                    toggle_indicators.rsi=!toggle_indicators.rsi;
+                    appstate.toggles.rsi=!appstate.toggles.rsi;
                 }
                 if(key=='i'){
-                    std::lock_guard<std::mutex> lock(mtx);
-                    polling =false;
-                    datapoint.clear();
+                    std::lock_guard<std::mutex> lock(appstate.mtx);
+                    appstate.polling =false;
+                    appstate.datapoint.clear();
 
-                    httpclient.switch_timeframe(1);
+                    appstate.httpclient.switch_timeframe(1);
 
-                    httpclient.limit = 200;
-                    httpclient.fetch_data();
-                    json.parse_json(httpclient.response);
-                    json.set_data(datapoint);
+                    appstate.httpclient.limit = 200;
+                    appstate.httpclient.fetch_data();
+                    appstate.json.parse_json(appstate.httpclient.response);
+                    appstate.json.set_data(appstate.datapoint);
 
-                    visible_region.first_visible_candle =std::max(0, (int)datapoint.size() - visible_region.candle_count);
-                    visible_region.selected_candle =std::max(0, visible_region.candle_count - 1);
+                    appstate.viewport.first_visible_candle =std::max(0, (int)appstate.datapoint.size() - appstate.viewport.candle_count);
+                    appstate.viewport.selected_candle =std::max(0, appstate.viewport.candle_count - 1);
 
-                    sma20.initialise(datapoint);
-                    ema20.initialise(datapoint, sma20);
-                    macd.initialise(datapoint);
-                    rsi14.initialise(datapoint);
+                    appstate.sma20.initialise(appstate.datapoint);
+                    appstate.ema20.initialise(appstate.datapoint, appstate.sma20);
+                    appstate.macd_line.initialise(appstate.datapoint);
+                    appstate.rsi14.initialise(appstate.datapoint);
 
-                    polling=true;
-                    httpclient.limit = 1;
+                    appstate.polling=true;
+                    appstate.httpclient.limit = 1;
 
                 }
                 if(key=='k'){
-                    std::lock_guard<std::mutex> lock(mtx);
-                    polling =false;
-                    datapoint.clear();
+                    std::lock_guard<std::mutex> lock(appstate.mtx);
+                    appstate.polling =false;
+                    appstate.datapoint.clear();
 
-                    httpclient.switch_timeframe(-1);
+                    appstate.httpclient.switch_timeframe(-1);
 
-                    httpclient.limit = 200;
-                    httpclient.fetch_data();
-                    json.parse_json(httpclient.response);
-                    json.set_data(datapoint);
+                    appstate.httpclient.limit = 200;
+                    appstate.httpclient.fetch_data();
+                    appstate.json.parse_json(appstate.httpclient.response);
+                    appstate.json.set_data(appstate.datapoint);
 
-                    visible_region.first_visible_candle =
-                        std::max(0, (int)datapoint.size() - visible_region.candle_count);
-                    visible_region.selected_candle =
-                        std::max(0, visible_region.candle_count - 1);
+                    appstate.viewport.first_visible_candle =
+                        std::max(0, (int)appstate.datapoint.size() - appstate.viewport.candle_count);
+                    appstate.viewport.selected_candle =
+                        std::max(0, appstate.viewport.candle_count - 1);
 
-                    sma20.initialise(datapoint);
-                    ema20.initialise(datapoint, sma20);
-                    macd.initialise(datapoint);
-                    rsi14.initialise(datapoint);
+                    appstate.sma20.initialise(appstate.datapoint);
+                    appstate.ema20.initialise(appstate.datapoint, appstate.sma20);
+                    appstate.macd_line.initialise(appstate.datapoint);
+                    appstate.rsi14.initialise(appstate.datapoint);
 
-                    polling=true;
-                    httpclient.limit = 1;
+                    appstate.polling=true;
+                    appstate.httpclient.limit = 1;
                 }
                 if(key=='q'){
-                    running=false;
+                    appstate.running=false;
                     break;
                 }
                 this_thread::sleep_for(chrono::milliseconds(33));

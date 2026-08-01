@@ -1,4 +1,4 @@
-#include "../include/indicators/sma.h"
+#include "indicators/sma.h"
 #include <cmath>
 
 

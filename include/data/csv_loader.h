@@ -5,7 +5,7 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
-#include "candle.h"
+#include "data/candle.h"
 using namespace std;
 
 vector<candle> load_csv(string &file_address)

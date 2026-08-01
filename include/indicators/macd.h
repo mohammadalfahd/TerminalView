@@ -2,9 +2,9 @@
 
 
 #include <vector>
-#include "../chart/grid.h"
-#include "../data/candle.h"
-#include "ema.h"
+#include "chart/grid.h"
+#include "data/candle.h"
+#include "indicators/ema.h"
 
 class macd{
     public:

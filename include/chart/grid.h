@@ -1,7 +1,6 @@
-#ifndef GRID_H
-#define GRID_H
+#pragma once
 
-#include "viewport.h"
+#include "chart/viewport.h"
 
 class GridConfig{
     public: 
@@ -35,4 +34,3 @@ class GridConfig{
 int scale(GridConfig &config,double val,double highest_val,double lowest_val);
 
 
-#endif

@@ -1,4 +1,4 @@
-#include "../include/candle.h"
+#include "data/candle.h"
 
 double get_highest_price(vector<candle> &data,Viewport &Viewport){
     double highest_price=0;

@@ -1,4 +1,4 @@
-#include "../include/renderer.h"
+#include "chart/renderer.h"
 
 vector<vector<string>> Renderer :: draw_grid(GridConfig &config){
 

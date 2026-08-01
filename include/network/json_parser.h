@@ -1,7 +1,7 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
-#include "../data/candle.h"
+#include "data/candle.h"
 
 class json_parser{
     public:

@@ -1,5 +1,5 @@
-#include "../include/viewport.h"
-#include "../include/candle.h"
+#include "chart/viewport.h"
+#include "data/candle.h"
 
 
 void Viewport :: pan(vector<candle> &data,int direction){

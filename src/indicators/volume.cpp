@@ -1,4 +1,4 @@
-#include "../include/indicators/volume.h"
+#include "indicators/volume.h"
 
 void draw_volume(GridConfig &config,std::vector<candle>& data,Viewport &Viewport){
     

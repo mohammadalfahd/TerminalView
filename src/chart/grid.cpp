@@ -1,4 +1,4 @@
-#include "../include/grid.h"
+#include "chart/grid.h"
 
 int scale(GridConfig &config,double value,double highest,double lowest){
 

@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <vector>
-#include "viewport.h"
+#include "chart/viewport.h"
 using namespace std;
 
 class candle

@@ -2,9 +2,9 @@
 
 #include <vector>
 #include <iostream>
-#include "candle.h"
-#include "viewport.h"
-#include "grid.h"
+#include "../data/candle.h"
+#include "chart/viewport.h"
+#include "chart/grid.h"
 #include "../indicators/indicators.h"
 
 

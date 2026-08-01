@@ -1,7 +1,7 @@
 #pragma once
 
 #include <queue>
-#include "../data/candle.h"
+#include "data/candle.h"
 
 class sma{
     

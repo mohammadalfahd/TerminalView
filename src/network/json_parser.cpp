@@ -1,4 +1,4 @@
-#include "../include/json_parser.h"
+#include "network/json_parser.h"
 
 bool json_parser :: parse_json(std::string &response){
     json_data=nlohmann::json::parse(response);
