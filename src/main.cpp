@@ -15,17 +15,12 @@ using namespace std;
 
 int main()
 {
-
-    cout << "Name of Comapny : ";
-    string name;
-    cin >> name;
-
     map<string, vector<candle>> Stock;
     application app;
     app.run();
     
     app.state.CONFIG.update_grid_config(app.state.viewport);
-    Stock.emplace(name, app.state.datapoint);
+    Stock.emplace(app.state.httpclient.symbol, app.state.datapoint);
 
     return 0;
 }

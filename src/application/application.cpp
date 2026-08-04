@@ -7,6 +7,20 @@ void application:: initialize_indicators(){
     state.macd_line.initialise(state.datapoint);
 }
 
+void application:: update_indicators(){
+    state.sma20.update(state.datapoint.back());
+    state.ema20.update(state.datapoint.back());
+    state.macd_line.update(state.datapoint.back());
+    state.rsi14.update(state.datapoint.back());
+}
+
+void application:: refresh_indicators(){
+    state.sma20.refresh(state.datapoint);
+    state.ema20.refresh(state.datapoint.back());
+    state.rsi14.refresh(state.datapoint.back());
+    state.macd_line.refresh(state.datapoint.back());
+}
+
 void application:: load_timeframe(int direction){
     state.polling =false;
     state.datapoint.clear();
@@ -18,10 +32,7 @@ void application:: load_timeframe(int direction){
     state.viewport.update_layout();
     state.viewport.first_visible_candle =std::max(0, (int)state.datapoint.size() - state.viewport.candle_count);
     state.viewport.selected_candle =std::max(0, state.viewport.candle_count - 1);
-    state.sma20.initialise(state.datapoint);
-    state.ema20.initialise(state.datapoint, state.sma20);
-    state.macd_line.initialise(state.datapoint);
-    state.rsi14.initialise(state.datapoint);
+    initialize_indicators();
     state.polling=true;
     state.httpclient.limit = 1;
 }
@@ -87,16 +98,10 @@ void application:: polling_loop(){
             
             if(!state.json.set_data(state.datapoint)){  
                 state.viewport.first_visible_candle=max(0, static_cast<int>(state.datapoint.size()) - state.viewport.candle_count);  
-                state.sma20.update(state.datapoint.back());
-                state.ema20.update(state.datapoint.back());
-                state.macd_line.update(state.datapoint.back());
-                state.rsi14.update(state.datapoint.back());
+                update_indicators();
             }
             else{
-                state.sma20.refresh(state.datapoint);
-                state.ema20.refresh(state.datapoint.back());
-                state.rsi14.refresh(state.datapoint.back());
-                state.macd_line.refresh(state.datapoint.back());
+                refresh_indicators();
             }
             
         }
@@ -262,3 +267,4 @@ void application::run()
     if (render.joinable())
         render.join();
 }
+
