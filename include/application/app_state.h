@@ -18,6 +18,7 @@ class app_state{
     std::vector<candle> datapoint;
 
     Viewport viewport;
+    GridConfig CONFIG{viewport};
     Indicators toggles;
 
     sma sma20;
