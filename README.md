@@ -2,18 +2,18 @@
 
 # 📈 TerminalView
 
-### Lightweight Terminal-Based Financial Charting Engine written in Modern C++
+### A lightweight terminal-based financial charting engine built with modern C++17
 
-Render historical and live financial charts directly inside your terminal.
+Render historical and live financial charts directly inside the terminal using ASCII graphics.
 
-**ASCII Graphics • Real-Time Data • Multithreaded • Technical Indicators**
+**Real-time market data • Technical indicators • Multithreaded architecture • CMake**
 
 <br>
 
-![C++](https://img.shields.io/badge/C%2B%2B-17-blue?style=for-the-badge\&logo=c%2B%2B)
-![Platform](https://img.shields.io/badge/Platform-Linux-success?style=for-the-badge\&logo=linux)
+![C++](https://img.shields.io/badge/C%2B%2B-17-blue?style=for-the-badge&logo=c%2B%2B)
+![Platform](https://img.shields.io/badge/Platform-Linux-success?style=for-the-badge&logo=linux)
+![Build](https://img.shields.io/badge/Build-CMake-orange?style=for-the-badge)
 ![Status](https://img.shields.io/badge/Status-Active-brightgreen?style=for-the-badge)
-![License](https://img.shields.io/badge/License-Educational-orange?style=for-the-badge)
 
 </div>
 
@@ -21,186 +21,229 @@ Render historical and live financial charts directly inside your terminal.
 
 ## 📸 Demo
 
-> **Coming Soon:** Animated GIF showcasing live market updates.
+> **Coming soon:** Animated GIF demonstrating live market updates and interactive chart navigation.
 
 <p align="center">
-
 <img src="screenshots/CandlestickChart.jpg" width="900">
-
 </p>
 
 ---
 
 # ✨ Features
 
-## 📊 Chart Rendering
+## 📊 Interactive charting
 
-* 📈 ASCII candlestick charts
-* 🔍 Dynamic viewport rendering
-* 📉 Automatic price scaling
-* 🎯 Interactive candle selection
-* ↔️ Horizontal panning
-* 📋 Live status bar
+- ASCII candlestick charts
+- Dynamic viewport rendering
+- Automatic price scaling
+- Interactive candle selection
+- Horizontal panning
+- Live status bar
+- Responsive terminal layout
 
----
+## 📈 Technical indicators
 
-## 📈 Technical Indicators
+- SMA (20)
+- EMA (20)
+- RSI (14)
+- MACD
+- Volume histogram
 
-* 20 Period Simple Moving Average (SMA)
-* 20 Period Exponential Moving Average (EMA)
-* Relative Strength Index (RSI-14)
-* Moving Average Convergence Divergence (MACD)
-* Volume Histogram
+## ⚡ Live market data
 
----
-
-## ⚡ Live Market Data
-
-* Binance REST API integration
-* Multiple TimeFrames 
-* Automatic live polling
-* Live candle refresh
-* Automatic new candle detection
-* Incremental indicator updates
-* Thread-safe shared state
+- Binance REST API integration
+- Multiple timeframes
+- Automatic live polling
+- New candle detection
+- Incremental indicator updates
+- Thread-safe shared state
 
 ---
 
 # 🏗 Architecture
 
+TerminalView follows a modular architecture centered around a shared application state.
+
 ```text
-                 Binance REST API
-                        │
-                        ▼
-                Network Client
-                        │
-                        ▼
-                 JSON Parser
-                        │
-                        ▼
-               Shared Market Data
-                 (Mutex Protected)
-                  ▲             │
-                  │             ▼
-             Renderer      Indicators
-                  │
-                  ▼
-             ASCII Terminal
+                  Binance REST API
+                         │
+                         ▼
+                 network_client
+                         │
+                         ▼
+                  json_parser
+                         │
+                         ▼
+                     app_state
+              (mutex-protected state)
+              ▲                  ▲
+              │                  │
+         polling_loop()     render_loop()
+              │                  │
+              ▼                  ▼
+         Indicator Engine    Renderer + Viewport
+              │                  │
+              └──────────┬───────┘
+                         ▼
+                    ASCII Terminal
+```
+
+The application lifecycle is managed by the `application` class, while all shared runtime state is centralized in `app_state`, enabling thread-safe communication between rendering and network polling.
+
+---
+
+# 📁 Project structure
+
+```text
+TerminalView/
+│
+├── include/
+│   ├── application/
+│   │   ├── application.h
+│   │   └── app_state.h
+│   │
+│   ├── chart/
+│   │   ├── renderer.h
+│   │   ├── viewport.h
+│   │   └── grid.h
+│   │
+│   ├── data/
+│   │   ├── candle.h
+│   │   └── csv_loader.h
+│   │
+│   ├── indicators/
+│   │   ├── indicators.h
+│   │   ├── sma.h
+│   │   ├── ema.h
+│   │   ├── rsi.h
+│   │   ├── macd.h
+│   │   └── volume.h
+│   │
+│   ├── network/
+│   │   ├── api_call.h
+│   │   └── json_parser.h
+│   │
+│   └── terminal/
+│       └── terminal.h
+│
+├── src/
+│   ├── main.cpp
+│   ├── application/
+│   ├── chart/
+│   ├── data/
+│   ├── indicators/
+│   └── network/
+│
+├── screenshots/
+├── CSV_files/
+├── build/
+├── CMakeLists.txt
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-# ⚙️ Built With
+# ⚙️ Build
 
-* Modern C++17
-* Standard Template Library (STL)
-* libcurl
-* nlohmann/json
-* std::thread
-* std::mutex
-* Git
+## Requirements
 
----
+- C++17 compatible compiler
+- CMake 3.16+
+- libcurl
+- pthreads
 
-# 🚀 Getting Started
-
-## Clone Repository
+## Clone
 
 ```bash
 git clone https://github.com/mohammadalfahd/TerminalView.git
 cd TerminalView
 ```
 
----
+## Configure
+
+```bash
+cmake -S . -B build
+```
 
 ## Build
 
 ```bash
-mkdir build
-cd build
-
-g++ -I../include ../src/*.cpp -lcurl -pthread -o TerminalView
+cmake --build build -j
 ```
-
----
 
 ## Run
 
 ```bash
-./TerminalView
+./build/TerminalView
+```
+
+---
+
+# 🧪 Debug builds
+
+TerminalView includes optional sanitizer configurations.
+
+## AddressSanitizer
+
+```bash
+cmake -S . -B build -DENABLE_ASAN=ON
+cmake --build build
+./build/TerminalView
+```
+
+## ThreadSanitizer
+
+```bash
+cmake -S . -B build -DENABLE_TSAN=ON
+cmake --build build
+./build/TerminalView
 ```
 
 ---
 
 # 🎮 Controls
 
-| Key   | Action                   |
-| ----- | ----------------------   |
-| **A** | Pan chart left           |
-| **D** | Pan chart right          |
-| **J** | Select previous candle   |
-| **L** | Select next candle       |
-| **S** | Toggle SMA               |
-| **E** | Toggle EMA               |
-| **V** | Toggle Volume            |
-| **M** | Toggle MACD              |
-| **R** | Toggle RSI               |
-| **I** | Move to Lower Timeframe  |
-| **K** | Move To Higher Timeframe |
-| **Q** | Quit                     |
+| Key | Action |
+|-----|--------|
+| **A** | Pan left |
+| **D** | Pan right |
+| **J** | Select previous candle |
+| **L** | Select next candle |
+| **S** | Toggle SMA |
+| **E** | Toggle EMA |
+| **V** | Toggle volume |
+| **M** | Toggle MACD |
+| **R** | Toggle RSI |
+| **I** | Lower timeframe |
+| **K** | Higher timeframe |
+| **Q** | Quit |
 
 ---
 
-# 🧠 Design Decisions
+# 🧠 Design highlights
 
-### Incremental Indicators
+## Incremental indicator engine
 
-Instead of recalculating every technical indicator after each market update, TerminalView updates indicators incrementally whenever possible. This significantly reduces computation during live polling.
+Indicators are updated incrementally whenever possible rather than recalculated from the entire dataset, reducing computational overhead during live polling.
 
----
+## Thread-safe shared state
 
-### Multithreaded Architecture
+The renderer and network polling execute on separate threads while synchronizing through a mutex-protected `app_state` object.
 
-Rendering and network polling execute on separate threads while sharing synchronized market data through mutex-protected resources.
+## Modular architecture
 
----
+Rendering, viewport management, networking, indicator calculations, and application control are implemented as independent components, making the project easier to maintain and extend.
 
-### ASCII Rendering
+## ASCII rendering engine
 
-Every candle, indicator, axis, label, and chart element is manually rendered using ASCII graphics without relying on GUI libraries.
-
----
-
-### Modular Components
-
-Indicators, renderer, networking, viewport management, and data parsing are implemented as independent modules, making the project easy to extend.
+Every candlestick, axis, indicator, label, and chart element is rendered manually using terminal graphics without relying on GUI frameworks.
 
 ---
 
-# 📁 Project Structure
+# 📊 Data sources
 
-```text
-TerminalView/
-│
-├── include/
-│   ├── indicators/
-│   ├── renderer/
-│   ├── networking/
-│   ├── viewport/
-│   └── ...
-│
-├── src/
-├── CSV_files/
-├── screenshots/
-├── README.md
-└── ...
-```
-
----
-
-# 📂 Data Sources
-
-## CSV Import
+## CSV import
 
 Expected format:
 
@@ -208,94 +251,68 @@ Expected format:
 Date,Open,High,Low,Close,Adj Close,Volume
 ```
 
----
+## Live market data
 
-## Live Market Data
+TerminalView fetches real-time OHLCV data from the Binance REST API and automatically distinguishes between:
 
-TerminalView fetches real-time market data from the Binance REST API.
-
-The application automatically distinguishes between:
-
-* Updating the currently forming candle.
-* Appending newly completed candles.
-
----
-
-# ✅ Valid Candle Format
-
-Every candle should satisfy:
-
-```text
-High >= Open
-High >= Close
-Low <= Open
-Low <= Close
-High >= Low
-```
-
-Example:
-
-```text
-Open  = 102
-High  = 108
-Low   = 99
-Close = 105
-```
+- updates to the currently forming candle
+- newly completed candles
 
 ---
 
 # 📷 Screenshots
 
-| Main Chart                            | SMA & EMA                   |
-| ------------------------------------- | --------------------------- |
+| Main chart | SMA & EMA |
+|------------|-----------|
 | ![](screenshots/CandlestickChart.jpg) | ![](screenshots/smaema.jpg) |
 
-| Volume                      | RSI                      |
-| --------------------------- | ------------------------ |
+| Volume | RSI |
+|--------|-----|
 | ![](screenshots/volume.jpg) | ![](screenshots/rsi.jpg) |
 
-| MACD                      |
-| ------------------------- |
+| MACD |
+|------|
 | ![](screenshots/MACD.jpg) |
 
 ---
 
 # 🛣 Roadmap
 
-* [x] Candlestick Rendering
-* [x] Dynamic Scaling
-* [x] Viewport Navigation
-* [x] Live Binance Data
-* [x] Multithreaded Rendering
-* [x] SMA
-* [x] EMA
-* [x] RSI
-* [x] MACD
-* [x] Volume Histogram
-* [ ] WebSocket Streaming
-* [ ] Bollinger Bands
-* [x] Multiple Timeframes
-* [ ] Performance Profiling
-* [ ] Configuration System
-* [ ] Cross-platform Terminal Support
+- [x] ASCII candlestick rendering
+- [x] Dynamic viewport
+- [x] Interactive navigation
+- [x] Live Binance data
+- [x] Multithreaded rendering
+- [x] SMA
+- [x] EMA
+- [x] RSI
+- [x] MACD
+- [x] Volume histogram
+- [x] Multiple timeframes
+- [x] Application architecture refactor
+- [ ] WebSocket streaming
+- [ ] Bollinger Bands
+- [ ] Configuration system
+- [ ] Performance profiling
+- [ ] Cross-platform terminal support
 
 ---
 
-# 📚 What I Learned
+# 📚 What I learned
 
-Developing TerminalView provided hands-on experience with:
+This project provided hands-on experience with:
 
-* Modern C++
-* Object-Oriented Design
-* Multithreading
-* Mutex Synchronization
-* REST API Integration
-* JSON Parsing
-* Incremental Algorithms
-* Financial Technical Indicators
-* Terminal Rendering
-* Software Architecture
-* Debugging Concurrent Systems
+- Modern C++17
+- Object-oriented design
+- Software architecture
+- Multithreading
+- Mutex synchronization
+- REST API integration
+- JSON parsing
+- Incremental algorithms
+- Terminal rendering
+- CMake
+- Debugging concurrent systems
 
 ---
 
@@ -303,13 +320,13 @@ Developing TerminalView provided hands-on experience with:
 
 TerminalView is a personal systems programming project focused on building a lightweight financial charting engine entirely inside the terminal.
 
-Rather than relying on graphical frameworks, every candlestick, indicator, axis, and chart component is rendered manually using ASCII graphics. The project emphasizes clean software architecture, modularity, efficient algorithms, and real-time market visualization.
+The project emphasizes clean software architecture, modular design, efficient algorithms, and real-time market visualization using nothing more than ASCII graphics and modern C++.
 
 ---
 
-# ⭐ If you like this project...
+# ⭐ Support
 
-Consider giving the repository a **star**. It helps others discover the project and motivates future development.
+If you find this project interesting, consider giving the repository a **star**. It helps others discover the project and motivates future development.
 
 ---
 
