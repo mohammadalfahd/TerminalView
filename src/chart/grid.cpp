@@ -1,17 +1,21 @@
 #include "chart/grid.h"
 
-int scale(GridConfig &config,double value,double highest,double lowest){
+#include <cmath>
 
-    double gap=highest-lowest;
+int scale(GridConfig &config, double value, double highest, double lowest)
+{
+    double gap = highest - lowest;
 
-    if(gap==0){
-        return config.chart_height/2;
-    }
-    else{
-    double scaled_val=(value-lowest)*(config.chart_height-1)/gap;
+    if (gap == 0)
+        return config.chart_height / 2;
 
-    return config.chart_height - 1 - scaled_val;
-    } 
+    double normalized = (value - lowest) / gap;
+    int row = static_cast<int>(std::round((1.0 - normalized) * (config.chart_height - 1)));
+
+    if (row < 0) row = 0;
+    if (row >= config.chart_height) row = config.chart_height - 1;
+
+    return row;
 }
 
 void GridConfig :: update_grid_config(Viewport &visible_region){

@@ -121,7 +121,7 @@ void application :: render_loop(){
             state.CONFIG.update_grid_config(state.viewport);
             system("clear");
             if(state.datapoint.empty()){cout<<"Fetching Data"<<endl; continue;}
-            cout<<"============= "<<state.httpclient.symbol<<" ================"<<endl;
+            cout<<state.httpclient.symbol<<"            TimeFrame : "<<state.httpclient.timeframe_array[state.httpclient.timeframe_tracker]<<endl;
             renderer.render(state.datapoint,state.CONFIG,state.viewport,state.toggles,state.sma20,state.ema20,state.macd_line,state.rsi14);
             }
             

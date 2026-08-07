@@ -166,7 +166,7 @@ void macd :: draw_macd(GridConfig &config,std::vector<candle>& data,Viewport &Vi
         bool selected = (screen_index == Viewport.selected_candle);
 
         int x = 1 + screen_index * config.spacing;
-        if(hist_y < 0 || hist_y >= config.total_height ){
+        if(hist_y < 0 || hist_y >= config.chart_height ){
             continue;
         }
         if (hist_point >= 0)
