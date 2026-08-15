@@ -289,6 +289,7 @@ TerminalView fetches real-time OHLCV data from the Binance REST API and automati
 - [x] MACD
 - [x] Volume histogram
 - [x] Multiple timeframes
+- [x] Multiple Symbols
 - [x] Application architecture refactor
 - [ ] WebSocket streaming
 - [ ] Bollinger Bands
