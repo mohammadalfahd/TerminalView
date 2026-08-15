@@ -22,6 +22,7 @@ class application{
     void polling_loop();
     void handle_input(char key);
     void load_timeframe(int direction);
+    void load_symbol(int direction);
     void initialize_indicators();
     void update_indicators();
     void refresh_indicators();

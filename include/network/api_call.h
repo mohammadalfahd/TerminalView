@@ -15,7 +15,7 @@ class network_client{
 
     std::string response;
 
-    std::vector<std::string> symbol_array{"BTCUSDT","ETHUSDT","SOLUSDT","DOGEUSDT"};
+    std::vector<std::string> symbol_array{"BTCUSDT","ETHUSDT","BNBUSDT"};
     int symbol_tracker=0;
     std::string symbol=symbol_array[symbol_tracker];
     const std::array<std::string,8> timeframe_array={"1s","1m","3m","5m","15m","30m","1h","1d"};
@@ -50,7 +50,7 @@ class network_client{
 
     
     void switch_timeframe(int diretion);
-    void add_symbol(std::string &symbol);
+    void add_symbol();
     void switch_symbol(int direction);
     static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);
     void setup();

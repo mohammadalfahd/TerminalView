@@ -36,7 +36,21 @@ void application:: load_timeframe(int direction){
     state.polling=true;
     state.httpclient.limit = 1;
 }
-
+void application :: load_symbol(int direction){
+    state.polling =false;
+    state.datapoint.clear();
+    state.httpclient.switch_symbol(direction);
+    state.httpclient.limit = 200;
+    state.httpclient.fetch_data();
+    state.json.parse_json(state.httpclient.response);
+    state.json.set_data(state.datapoint);
+    state.viewport.update_layout();
+    state.viewport.first_visible_candle =std::max(0, (int)state.datapoint.size() - state.viewport.candle_count);
+    state.viewport.selected_candle =std::max(0, state.viewport.candle_count - 1);
+    initialize_indicators();
+    state.polling=true;
+    state.httpclient.limit = 1;
+}
 void application :: handle_input(char key){
 
     if(key=='a'){
@@ -73,6 +87,20 @@ void application :: handle_input(char key){
     if(key=='k'){
         std::lock_guard<std::mutex> lock(state.mtx);
         load_timeframe(-1);
+    }
+    if(key=='x'){
+        std::lock_guard<std::mutex> lock(state.mtx);
+        disable_raw_mode();
+        state.httpclient.add_symbol();
+        enable_raw_mode();        
+    }
+    if(key=='n'){
+        std::lock_guard<std::mutex> lock(state.mtx);
+        load_symbol(1);
+    }
+    if(key=='b'){
+        std::lock_guard<std::mutex> lock(state.mtx);
+        load_symbol(-1);
     }
     if(key=='q'){
         state.running=false;
@@ -126,8 +154,10 @@ void application :: render_loop(){
             }
             
             char key=get_key();
-            
+            {
+            lock_guard<mutex> lock(state.input_mtx);
             handle_input(key);
+            }
             this_thread::sleep_for(chrono::milliseconds(33));
     }
     disable_raw_mode();
@@ -239,7 +269,8 @@ void application :: menu(){
             initialize_indicators();
         }
         else if (choice == "3")
-        {
+        {   
+            
             start_realtime();
             break;
         }

@@ -30,8 +30,10 @@ class app_state{
     json_parser json;
 
     std::mutex mtx;
+    std::mutex input_mtx;
 
     std::atomic<bool> running{true};
     std::atomic<bool> polling{false};
+    std::atomic<bool> input{false};
 
 };
