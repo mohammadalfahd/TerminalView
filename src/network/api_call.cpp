@@ -62,3 +62,20 @@ void network_client :: switch_timeframe(int direction){
         timeframe_tracker--;
 
 }
+
+void network_client :: add_symbol(std::string &symbol){
+
+    std::string new_symbol;
+
+    std::cout<<"Enter Symbol : ";
+    std::cin>>new_symbol;
+
+    symbol_array.push_back(new_symbol);
+}
+
+void network_client :: switch_symbol(int direction){
+    if(direction==1 && symbol_tracker<symbol_array.size()-1)
+        symbol_tracker++;
+    else if(direction==-1 && symbol_tracker>0)
+        symbol_tracker--;
+}

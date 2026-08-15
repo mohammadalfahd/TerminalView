@@ -5,6 +5,7 @@
 #include <curl/curl.h>
 #include <array>
 #include <mutex>
+#include <vector>
 
 class network_client{
     public:
@@ -14,7 +15,9 @@ class network_client{
 
     std::string response;
 
-    std::string symbol="BTCUSDT";
+    std::vector<std::string> symbol_array{"BTCUSDT","ETHUSDT","SOLUSDT","DOGEUSDT"};
+    int symbol_tracker=0;
+    std::string symbol=symbol_array[symbol_tracker];
     const std::array<std::string,8> timeframe_array={"1s","1m","3m","5m","15m","30m","1h","1d"};
     int timeframe_tracker=3;
 
@@ -47,6 +50,8 @@ class network_client{
 
     
     void switch_timeframe(int diretion);
+    void add_symbol(std::string &symbol);
+    void switch_symbol(int direction);
     static size_t writecallback(void* content,size_t size,size_t nmemb,void* userp);
     void setup();
     bool fetch_data();
