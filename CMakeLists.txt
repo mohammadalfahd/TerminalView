@@ -40,6 +40,7 @@ target_include_directories(TerminalView PRIVATE
 )
 
 target_link_libraries(TerminalView PRIVATE
+    ixwebsocket
     CURL::libcurl
     Threads::Threads
 )
