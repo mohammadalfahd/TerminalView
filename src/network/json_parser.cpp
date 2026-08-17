@@ -1,15 +1,22 @@
 #include "network/json_parser.h"
 
 bool json_parser :: parse_json(std::string &response){
-    json_data=nlohmann::json::parse(response);
+    if(!response.empty()){
+        json_data=nlohmann::json::parse(response);
 
-    if(json_data.empty()){
-        std::cerr<<"Parsing Failed \n";
+        if(json_data.empty()){
+            std::cerr<<"Parsing Failed \n";
+            return false;
+        }
+        else{
+            //std::cout<<"Parsing successfull\n"; ->Disabled for Finalisation
+            return true;
+            }
+        }
+    else{
+        std::cout<<"\nNO RESPONSE\n";
         return false;
     }
-    else{
-        //std::cout<<"Parsing successfull\n"; ->Disabled for Finalisation
-        return true;}
 }
 
 bool json_parser :: set_data(vector<candle> &data){

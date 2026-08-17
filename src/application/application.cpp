@@ -34,7 +34,7 @@ void application:: load_timeframe(int direction){
     state.viewport.selected_candle =std::max(0, state.viewport.candle_count - 1);
     initialize_indicators();
     state.polling=true;
-    state.httpclient.limit = 1;
+    
 }
 void application :: load_symbol(int direction){
     state.polling =false;
@@ -49,7 +49,7 @@ void application :: load_symbol(int direction){
     state.viewport.selected_candle =std::max(0, state.viewport.candle_count - 1);
     initialize_indicators();
     state.polling=true;
-    state.httpclient.limit = 1;
+    
 }
 void application :: handle_input(char key){
 
@@ -109,20 +109,21 @@ void application :: handle_input(char key){
 }
 
 void application:: polling_loop(){
-    state.httpclient.limit=1;
-                    
+    state.socketclient.connect(state.httpclient.symbol,state.httpclient.timeframe_array[state.httpclient.timeframe_tracker]); 
     while(state.running){
         if (!state.polling) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             continue;
         }
-        bool data_fetch=state.httpclient.fetch_data();
-        bool json_parse=state.json.parse_json(state.httpclient.response);
+        bool json_parse;
+        {
+        lock_guard<mutex> lock(state.mtx);
+        json_parse=state.json.parse_json(state.socketclient.response);
+        state.socketclient.response.clear();
+        }
        
-        if(json_parse && data_fetch ){
+        if(json_parse){
             lock_guard<mutex> lock(state.mtx);
-            
-            
             
             if(!state.json.set_data(state.datapoint)){  
                 state.viewport.first_visible_candle=max(0, static_cast<int>(state.datapoint.size()) - state.viewport.candle_count);  
@@ -134,7 +135,7 @@ void application:: polling_loop(){
             
         }
     
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 

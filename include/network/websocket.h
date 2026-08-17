@@ -10,12 +10,10 @@ class websocketclient{
         ix::WebSocket websocket;
 
         std::string url;
+        std::string response;
 
-        websocketclient(){}
-        websocketclient(std::string &symbol,std::string &timeframe){
+        websocketclient(){
             
-            make_url(symbol,timeframe);
-            websocket.setUrl(url);
             websocket.setOnMessageCallback(
                 [this](const ix::WebSocketMessagePtr &msg){
                     
@@ -30,8 +28,9 @@ class websocketclient{
             websocket.stop();
         }
         
-        void connect();
-        void make_url(std::string &symbol,std::string &timeframe);
+        
+        void connect(std::string &symbol,const std::string &timeframe);
+        void make_url(std::string &symbol,const std::string &timeframe);
         void onMessage(const ix::WebSocketMessagePtr &msg);
 
 };

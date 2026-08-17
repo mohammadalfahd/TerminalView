@@ -11,6 +11,7 @@
 #include "data/csv_loader.h"
 #include "network/api_call.h"
 #include "network/json_parser.h"
+#include "network/websocket.h"
 #include "indicators/indicators.h"
 
 class app_state{
@@ -27,6 +28,7 @@ class app_state{
     rsi rsi14;
 
     network_client httpclient;
+    websocketclient socketclient;
     json_parser json;
 
     std::mutex mtx;
@@ -36,4 +38,5 @@ class app_state{
     std::atomic<bool> polling{false};
     std::atomic<bool> input{false};
 
+    
 };

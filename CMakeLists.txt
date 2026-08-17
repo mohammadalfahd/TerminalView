@@ -25,6 +25,8 @@ endif()
 # =========================
 find_package(CURL REQUIRED)
 find_package(Threads REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(ZLIB REQUIRED)
 
 # =========================
 # Sources
@@ -41,6 +43,9 @@ target_include_directories(TerminalView PRIVATE
 
 target_link_libraries(TerminalView PRIVATE
     ixwebsocket
+    ZLIB::ZLIB
+    OpenSSL::SSL
+    OpenSSL::Crypto
     CURL::libcurl
     Threads::Threads
 )
