@@ -122,6 +122,7 @@ TerminalView/
 │   ├── network/
 │   │   ├── api_call.h
 │   │   └── json_parser.h
+|   |   └── websocket.h
 │   │
 │   └── terminal/
 │       └── terminal.h
@@ -151,6 +152,8 @@ TerminalView/
 - C++17 compatible compiler
 - CMake 3.16+
 - libcurl
+- nlohmann::json
+- ixwebsocket/IXWebSocket
 - pthreads
 
 ## Clone
@@ -217,6 +220,9 @@ cmake --build build
 | **R** | Toggle RSI |
 | **I** | Lower timeframe |
 | **K** | Higher timeframe |
+| **X** | Add New Exchange |
+| **N** | Switch to Next Exchange |
+| **B** | Switch to Previous Exchange |
 | **Q** | Quit |
 
 ---
@@ -291,7 +297,7 @@ TerminalView fetches real-time OHLCV data from the Binance REST API and automati
 - [x] Multiple timeframes
 - [x] Multiple Symbols
 - [x] Application architecture refactor
-- [ ] WebSocket streaming
+- [x] WebSocket streaming
 - [ ] Bollinger Bands
 - [ ] Configuration system
 - [ ] Performance profiling
