@@ -29,7 +29,7 @@ void websocketclient ::onMessage(const ix::WebSocketMessagePtr &msg)
     {
     case ix::WebSocketMessageType::Message:
         {
-        std::cout << "\nCandle Recieved\n";
+        //std::cout << "\nCandle Recieved\n"; -> Disabled For Finalisation
         response=msg->str;
         }
         break;

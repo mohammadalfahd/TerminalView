@@ -125,7 +125,7 @@ void application:: polling_loop(){
         if(json_parse){
             lock_guard<mutex> lock(state.mtx);
             
-            if(!state.json.set_data(state.datapoint)){  
+            if(!state.json.socket_set_data(state.datapoint)){  
                 state.viewport.first_visible_candle=max(0, static_cast<int>(state.datapoint.size()) - state.viewport.candle_count);  
                 update_indicators();
             }
