@@ -111,7 +111,12 @@ void application :: handle_input(char key){
 void application:: polling_loop(){
     state.socketclient.connect(state.httpclient.symbol,state.httpclient.timeframe_array[state.httpclient.timeframe_tracker]); 
     while(state.running){
+
+        if(state.socketclient.reconnect_requested){
+            state.socketclient.reconnect();
+        }
         if (!state.polling) {
+            state.socketclient.reconnect();
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             continue;
         }
